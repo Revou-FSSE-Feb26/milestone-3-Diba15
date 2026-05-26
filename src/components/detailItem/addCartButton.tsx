@@ -7,7 +7,7 @@ export default function AddCartButton({item}: {item: Item}) {
 
     return (
         <button onClick={() => addToCart(item)} className="bg-primary text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-accent">
-            Add to Cart
+            <i className="fas fa-shopping-cart"></i> Add to Cart
         </button>
     );
 }

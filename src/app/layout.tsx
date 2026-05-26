@@ -25,13 +25,14 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
         <html
             lang="en"
             className={`h-full antialiased ${poppins.className}`}
+            suppressHydrationWarning
         >
             <body className="min-h-full flex flex-col">
                 <CartProvider>
                     <header>
                         <Navbar/>
                     </header>
-                    <main className={"flex-1 flex flex-col"}>
+                    <main className={"flex-1 flex flex-col bg-background"}>
                         {children}
                     </main>
                     <footer>

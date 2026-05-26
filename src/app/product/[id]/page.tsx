@@ -21,17 +21,17 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
     }
 
     return (
-        <div className="flex-1 flex flex-col items-center justify-center p-8">
+        <div className="flex flex-col flex-1 items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">Product Detail</h1>
-            <div className={"flex flex-row gap-3 justify-around"}>
-                <Image src={item.img_url} alt={item.name} width={300} height={300} />
-                <div className={"flex flex-col gap-2 max-w-md"}>
+            <div className="flex flex-col md:flex-row gap-4">
+                <Image src={item.img_url} alt={item.name} width={300} height={300} className="object-cover w-auto h-auto rounded-lg" />
+                <div className={"flex flex-col gap-2 max-w-md justify-center"}>
                     <h2>{item.name}</h2>
                     <p>{item.description}</p>
                     <p>Price: ${item.price}</p>
+                    <AddCartButton item={item} />
                 </div>
             </div>
-            <AddCartButton item={item} />
         </div>
     );
 }

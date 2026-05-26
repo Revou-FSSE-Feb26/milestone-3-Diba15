@@ -22,11 +22,12 @@ export default function CartPage() {
                     </Link>
                 </div>
             ) : (
-                <div className={"flex flex-col gap-4 max-h-75 overflow-y-auto"}>
-                    {cart.map(item => (
-                        <CartCard key={item.id} item={item}/>
-                    ))}
-
+                <div className={"flex flex-col gap-4"}>
+                    <div className={"flex flex-col gap-4 h-32! overflow-y-auto"}>
+                        {cart.map(item => (
+                            <CartCard key={item.id} item={item}/>
+                        ))}
+                    </div>
                     <button onClick={checkOut}
                             className={"bg-primary text-white px-4 py-2 rounded hover:bg-primary/80"}>
                         Checkout
