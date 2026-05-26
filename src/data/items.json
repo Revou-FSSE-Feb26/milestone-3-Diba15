@@ -1,0 +1,139 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "iPhone 15",
+      "price": 999,
+      "img_url": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=500&auto=format&fit=crop",
+      "description": "Experience the next generation of smartphone with Dynamic Island, a 48MP main camera, and a durable color-infused glass design.",
+      "category": "Electronic",
+      "stock": 10
+    },
+    {
+      "id": 2,
+      "name": "Samsung Galaxy S23",
+      "price": 899,
+      "img_url": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=600&auto=format&fit=crop",
+      "description": "Capture the night with cinematic Nightography, powered by the fastest Snapdragon processor yet for an elite gaming experience.",
+      "category": "Electronic",
+      "stock": 10
+    },
+    {
+      "id": 3,
+      "name": "MacBook Pro",
+      "price": 1999,
+      "img_url": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=500&auto=format&fit=crop",
+      "description": "Supercharged for pros. Features a stunning Liquid Retina XDR display, extensive pro connectivity, and groundbreaking battery life.",
+      "category": "Electronic",
+      "stock": 10
+    },
+    {
+      "id": 4,
+      "name": "iPad Pro",
+      "price": 799,
+      "img_url": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=500&auto=format&fit=crop",
+      "description": "Astonishing performance with an advanced Liquid Retina display, ultra-fast wireless speeds, and support for Apple Pencil.",
+      "category": "Electronic",
+      "stock": 10
+    },
+    {
+      "id": 5,
+      "name": "AirPods Pro",
+      "price": 249,
+      "img_url": "https://images.unsplash.com/photo-1588449668365-d15e397f6787?q=80&w=500&auto=format&fit=crop",
+      "description": "Featuring up to two times more Active Noise Cancellation, Adaptive Audio, and Personalized Spatial Audio for immersive sound.",
+      "category": "Electronic",
+      "stock": 10
+    },
+    {
+      "id": 6,
+      "name": "Sony WH-1000XM4",
+      "price": 349,
+      "img_url": "https://images.unsplash.com/photo-1599669454699-248893623440?q=80&w=500&auto=format&fit=crop",
+      "description": "Premium over-ear headphones delivering industry-leading noise cancellation, exceptional sound quality, and smart listening technology.",
+      "category": "Electronic",
+      "stock": 10
+    },
+    {
+      "id": 7,
+      "name": "Men's Cotton T-Shirt",
+      "price": 29,
+      "img_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=500&auto=format&fit=crop",
+      "description": "A classic wardrobe staple crafted from 100% premium breathable cotton, offering ultimate comfort and a perfect regular fit.",
+      "category": "Men Clothing",
+      "stock": 50
+    },
+    {
+      "id": 8,
+      "name": "Men's Jeans",
+      "price": 59,
+      "img_url": "https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=500&auto=format&fit=crop",
+      "description": "Durable slim-fit denim jeans with a subtle stretch for all-day comfort. Features a timeless 5-pocket styling.",
+      "category": "Men Clothing",
+      "stock": 35
+    },
+    {
+      "id": 9,
+      "name": "Men's Jacket",
+      "price": 129,
+      "img_url": "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=500&auto=format&fit=crop",
+      "description": "Stylish and weather-resistant casual outerwear, designed to keep you warm and cozy during breezy days without compromising on style.",
+      "category": "Men Clothing",
+      "stock": 20
+    },
+    {
+      "id": 10,
+      "name": "Women's Dress",
+      "price": 79,
+      "img_url": "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=500&auto=format&fit=crop",
+      "description": "An elegant and lightweight A-line dress with a flattering silhouette, perfect for both casual daytime outings and evening gatherings.",
+      "category": "Women Clothing",
+      "stock": 40
+    },
+    {
+      "id": 11,
+      "name": "Women's Blazer",
+      "price": 99,
+      "img_url": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=500&auto=format&fit=crop",
+      "description": "A sophisticated, tailored blazer featuring sharp lapels and a structured fit, designed to instantly elevate your office look or casual chic outfit.",
+      "category": "Women Clothing",
+      "stock": 25
+    },
+    {
+      "id": 12,
+      "name": "Gold Necklace",
+      "price": 199,
+      "img_url": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=500&auto=format&fit=crop",
+      "description": "A delicate and shimmering 14k gold chain necklace, featuring a minimalist design that adds a subtle touch of luxury to your everyday style.",
+      "category": "Jewelry",
+      "stock": 15
+    },
+    {
+      "id": 13,
+      "name": "Diamond Ring",
+      "price": 499,
+      "img_url": "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=500&auto=format&fit=crop",
+      "description": "A breathtaking sterling silver engagement ring featuring a brilliant-cut center diamond surrounded by a halo of micro-pave stones.",
+      "category": "Jewelry",
+      "stock": 8
+    },
+    {
+      "id": 14,
+      "name": "Silver Bracelet",
+      "price": 89,
+      "img_url": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=500&auto=format&fit=crop",
+      "description": "An elegant, polished 925 sterling silver chain bracelet with a secure clasp. Ideal for stacking or wearing on its own.",
+      "category": "Jewelry",
+      "stock": 20
+    },
+    {
+      "id": 15,
+      "name": "Pearl Earrings",
+      "price": 149,
+      "img_url": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=500&auto=format&fit=crop",
+      "description": "Timeless drop earrings featuring lustrous freshwater cultured pearls, perfectly suspended from elegant white gold studs.",
+      "category": "Jewelry",
+      "stock": 12
+    }
+  ]
+}
