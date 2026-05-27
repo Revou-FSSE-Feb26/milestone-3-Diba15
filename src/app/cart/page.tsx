@@ -23,7 +23,7 @@ export default function CartPage() {
                 </div>
             ) : (
                 <div className={"flex flex-col gap-4"}>
-                    <div className={"flex flex-col gap-4 h-32! overflow-y-auto"}>
+                    <div className={"flex flex-col gap-4 max-h-[70vh] overflow-y-auto"}>
                         {cart.map(item => (
                             <CartCard key={item.id} item={item}/>
                         ))}
