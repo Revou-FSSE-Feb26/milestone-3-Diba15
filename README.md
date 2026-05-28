@@ -4,6 +4,13 @@
 
 Revoshop is a web application that sell many product
 
+# How to run
+
+```bash
+bun install
+bun dev
+```
+
 ## 📃 Github Pages
 
 ### Preview Web: [Click here!](https://milestone-3-diba15.vercel.app/)
