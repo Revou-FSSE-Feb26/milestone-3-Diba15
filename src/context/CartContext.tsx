@@ -6,6 +6,11 @@ import Toast from "@/components/ui/Toast";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+/**
+ * Berfungsi sebagai penyedia konteks untuk keranjang belanja (CartContext) yang mengelola state dan fungsi-fungsi terkait keranjang belanja.
+ * @param ReactNode
+ * @returns CartContext.Provider
+ */
 export function CartProvider({children}: { children: ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [showToast, setShowToast] = useState(false);
@@ -13,9 +18,12 @@ export function CartProvider({children}: { children: ReactNode }) {
     const [type, setType] = useState<"success" | "error" | "warning">("success");
     const toastTimeout = useRef<NodeJS.Timeout | null>(null);
 
-
-
-
+    /** 
+     * Berfungsi untuk trigger pesan melalui toast yang akan muncul di layar selama 3 detik. 
+     * Pesan ini bisa berupa informasi sukses, error, atau peringatan tergantung pada jenis pesan yang diberikan.
+     * @param message
+     * @param type
+    */
     const triggerToast = (message: string, type: 'success' | 'error' | 'warning') => {
         setMessage(message);
         setType(type);
@@ -31,6 +39,10 @@ export function CartProvider({children}: { children: ReactNode }) {
         }, 3000);
     }
 
+    /**
+     * Berfungsi untuk menghilangkan pesan toast secara manual sebelum waktu 3 detik habis.
+     * @return void
+     */
     const clearToast = () => {
         setShowToast(false);
         if (toastTimeout.current) {
@@ -39,10 +51,7 @@ export function CartProvider({children}: { children: ReactNode }) {
         }
     }
 
-    // Menggunakan useEffect untuk memuat data keranjang dari localStorage saat komponen pertama kali dimuat.
-    // Jika ada data yang disimpan, maka data tersebut akan di-parse dan diset ke state cart.
-    // Penggunaan setTimeout dengan delay 0 digunakan untuk memastikan bahwa proses ini terjadi setelah render pertama selesai,
-    // sehingga tidak mengganggu performa aplikasi.
+    // Menggunakan useEffect untuk mengambil data keranjang dari localStorage saat komponen pertama kali dimuat.
     useEffect(() => {
         const storedCart = localStorage.getItem("cart");
         const setTimer = setTimeout(() => {
@@ -63,8 +72,12 @@ export function CartProvider({children}: { children: ReactNode }) {
         }
     }, [cart]);
 
-    // Fungsi untuk menambahkan item ke dalam keranjang. Jika item sudah ada, maka quantity akan ditambah 1.
-    // Jika belum ada, maka item baru akan ditambahkan dengan quantity 1.
+    /**
+     * Berfungsi untuk menambahkan item ke dalam keranjang. Jika item sudah ada di dalam keranjang, maka fungsi ini akan meningkatkan jumlah (quantity) 
+     * item tersebut. Jika item belum ada, maka fungsi ini akan menambahkannya ke dalam keranjang dengan quantity awal 1.
+     * @param item Item yang akan ditambahkan ke dalam keranjang.
+     * @return void
+     */
     const addToCart = (item: Item) => {
         setCart((prevCart) => {
             const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
@@ -79,26 +92,46 @@ export function CartProvider({children}: { children: ReactNode }) {
         });
     };
 
-    // Fungsi untuk menghapus item dari keranjang berdasarkan ID item. Fungsi ini akan memfilter item yang
-    // ada di dalam keranjang dan hanya menyisakan item yang ID-nya tidak sama dengan ID yang ingin dihapus.
+    /**
+     * Berfungsi untuk menghapus item dari keranjang berdasarkan ID item.
+     * @param itemId ID item yang akan dihapus dari keranjang.
+     * @return void
+     */
     const removeFromCart = (itemId: number) => {
         setCart((prevCart) => {
             return prevCart.filter(item => item.id !== itemId);
         });
     };
 
+    /**
+     * Berfungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
+     * jika tidak maka item akan dihapus dari keranjang
+     * @param itemId ID item yang akan dikurangi jumlahnya.
+     * @return void
+     */
     const decreaseQuantity = (itemId: number) => {
         setCart((prevCart) => {
             return prevCart.map(item => item.id === itemId ? {...item, quantity: item.quantity - 1} : item);
         });
     };
 
+    /**
+     * Berfungsi untuk mengubah jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
+     * jika tidak maka item akan dihapus dari keranjang
+     * @param itemId ID item yang akan diubah jumlahnya.
+     * @param quantity Jumlah item yang akan diubah.
+     * @return void
+     */
     const updateQuantity = (itemId: number, quantity: number) => {
         setCart((prevCart) => {
             return prevCart.map(item => item.id === itemId ? {...item, quantity} : item);
         });
     };
 
+    /**
+     * Berfungsi untuk mengosongkan keranjang.
+     * @return void
+     */
     const clearCart = () => {
         setCart([]);
     };
@@ -113,6 +146,11 @@ export function CartProvider({children}: { children: ReactNode }) {
     );
 }
 
+/**
+ * Berfungsi untuk mengakses konteks keranjang (CartContext) di dalam komponen lain. Fungsi ini memastikan bahwa konteks digunakan di dalam CartProvider,
+ * @returns Nilai konteks keranjang yang berisi state dan fungsi-fungsi untuk mengelola keranjang belanja.
+ * @throws Error jika fungsi ini digunakan di luar CartProvider.
+ */
 export function useCart() {
     const context = useContext(CartContext);
     if (!context) throw new Error("useCart must be used within a CartProvider");
