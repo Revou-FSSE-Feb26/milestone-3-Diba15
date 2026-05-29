@@ -1,13 +1,8 @@
 "use client";
 
-import {Montserrat} from "next/font/google";
-import Link from "next/link";
 import {useCart} from "@/context/CartContext";
-
-const montserrat = Montserrat({
-    subsets: ["latin"],
-    weight: ["400", "500", "600", "700"],
-})
+import Brand from "@/components/ui/Brand";
+import Link from "next/link";
 
 export default function Navbar() {
     // Ambil data 'cart' dari context
@@ -19,9 +14,7 @@ export default function Navbar() {
 
     return (
         <nav className="bg-primary text-white p-4 flex justify-between items-center">
-            <Link href="/" className="text-xl font-bold">
-                <span className={`text-accent ${montserrat.className}`}>Revo</span>shop
-            </Link>
+            <Brand />
             <div className="flex gap-2 items-center relative">
                 {cartTotal > 0 && (
                     <span

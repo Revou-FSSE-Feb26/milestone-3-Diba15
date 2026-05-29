@@ -35,9 +35,7 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
                     <main className={"flex-1 flex flex-col bg-background justify-center"}>
                         {children}
                     </main>
-                    <footer>
-                        <Footer/>
-                    </footer>
+                    <Footer/>
                 </CartProvider>
             </body>
             <Script
