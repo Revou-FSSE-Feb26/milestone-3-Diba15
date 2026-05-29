@@ -20,12 +20,14 @@ bun dev
 ## 📋 Features
 
 | Feature                | Description                                |
-|------------------------|--------------------------------------------|
+| ---------------------- | ------------------------------------------ |
 | Add to cart            | Add products to the shopping cart          |
 | Decrease item quantity | Decrease the quantity of items in the cart |
 | Checkout               | Checkout the items in the cart             |
 | Clear cart             | Clear all items in the cart                |
 | Remove item            | Remove an item from the cart               |
+| Filter product         | Filter product by category                 |
+| Notification Toast     | Notification for user with Toast           |
 
 ---
 
@@ -40,8 +42,8 @@ bun dev
 ## 📸 Screenshots
 
 | Image                                                          | Description    |
-|----------------------------------------------------------------|----------------|
-| ![Screenshot of the resume](public/screenshots/home.png)       | Homepage       | 
+| -------------------------------------------------------------- | -------------- |
+| ![Screenshot of the resume](public/screenshots/home.png)       | Homepage       |
 | ![Screenshot of the resume](public/screenshots/detail.png)     | Detail Product |
 | ![Screenshot of the resume](public/screenshots/faq.png)        | FAQ            |
 | ![Screenshot of the resume](public/screenshots/cart.png)       | Cart           |

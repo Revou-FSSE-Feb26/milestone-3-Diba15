@@ -2,13 +2,26 @@ import {Item} from "@/types/Types";
 import Image from "next/image";
 import Link from "next/link";
 import {useCart} from "@/context/CartContext";
+import CartButton from "@/components/ui/CartButton";
 
 export default function ItemCard({Item}: { Item: Item }) {
-    const {addToCart, triggerToast} = useCart();
+    const {cart, addToCart, decreaseQuantity, removeFromCart, triggerToast} = useCart();
+
+    const cartItem = cart.find((cartItem) => cartItem.id === Item.id);
 
     const handleAddToCart = (): void => {
         addToCart(Item);
         triggerToast(`${Item.name} added to cart`, "success");
+    }
+
+    const handleRemoveFromCart = (): void => {
+        if(cartItem && cartItem.quantity > 1) {
+            decreaseQuantity(Item.id);
+            triggerToast(`${Item.name} quantity decreased`, "warning");
+        } else {
+            removeFromCart(Item.id);
+            triggerToast(`${Item.name} removed from cart`, "error");
+        }
     }
 
     const {id, name, price, img_url, category}: Item = Item;
@@ -28,16 +41,13 @@ export default function ItemCard({Item}: { Item: Item }) {
                 </div>
                 <div className={"flex flex-row justify-between items-center gap-1 w-full"}>
                     <div className={"flex flex-col gap-1"}>
-                        <h2 className={"text-lg font-bold"}>{name}</h2>
+                        <h2 className={"text-md md:text-lg font-bold"}>{name}</h2>
                         <p className={"text-gray-500"}>{category}</p>
                     </div>
-                    <p className={"text-xl font-bold"}>$ {price}</p>
+                    <p className={"text-lg md:text-xl font-bold"}>$ {price}</p>
                 </div>
             </Link>
-            <button onClick={() => handleAddToCart()}
-                    className={"bg-primary text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-accent w-full"}><i
-                className={"fas fa-shopping-cart"}></i> Add to Cart
-            </button>
+            <CartButton handleAddToCart={handleAddToCart} handleRemoveFromCart={handleRemoveFromCart} itemCount={cartItem ? cartItem.quantity : 0} />
         </div>
     );
 }
