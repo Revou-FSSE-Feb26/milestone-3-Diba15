@@ -2,7 +2,7 @@
 
 # 👁️ Overview
 
-Revoshop is a web application that sell many product
+Revoshop is a web application that sell many product in online store. It is built using Next.js, TypeScript, and Tailwind CSS.
 
 # How to run
 
@@ -33,7 +33,7 @@ bun dev
 
 [![My Skills](https://skillicons.dev/icons?i=ts,nextjs,tailwind)](https://skillicons.dev)
 
-- Next JS: Used for
+- Next JS: Used for building the web application.
 - Tailwind CSS: Used for styling the resume and making it visually appealing.
 - Typescript: Used for adding interactivity, such as click navbar.
 

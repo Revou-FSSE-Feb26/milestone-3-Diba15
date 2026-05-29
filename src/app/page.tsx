@@ -38,10 +38,9 @@ export default function Home() {
                 }
             </div>
 
-            {/* Item Cards - Menggunakan data 'filteredItems' yang dinamis */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
                 {filteredItems.map((item) => (
-                    <ItemCard key={item.id} Item={item}/> // Gunakan item.id sebagai key agar lebih aman dari item.name
+                    <ItemCard key={item.id} Item={item}/>
                 ))}
             </div>
 
