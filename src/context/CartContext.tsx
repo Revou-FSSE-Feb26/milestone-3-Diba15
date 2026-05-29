@@ -1,8 +1,9 @@
 "use client";
 
-import {createContext, useContext, useState, useEffect, ReactNode, useRef} from "react";
-import {Item, CartItem, CartContextType} from "@/types/Types";
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
+import { Item, CartItem, CartContextType } from "@/types/Types";
 import Toast from "@/components/ui/Toast";
+import Modal from "@/components/ui/Modal";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -11,12 +12,19 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
  * @param ReactNode
  * @returns CartContext.Provider
  */
-export function CartProvider({children}: { children: ReactNode }) {
+export function CartProvider({ children }: { children: ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [showToast, setShowToast] = useState(false);
     const [message, setMessage] = useState("");
     const [type, setType] = useState<"success" | "error" | "warning">("success");
     const toastTimeout = useRef<NodeJS.Timeout | null>(null);
+    const [modalConfig, setModalConfig] = useState({
+        showModal: false,
+        modalMsg: '',
+        modalType: 'alert' as 'confirmation' | 'alert',
+        yesAction: () => {},
+        noAction: () => {},
+    })
 
     /** 
      * Berfungsi untuk trigger pesan melalui toast yang akan muncul di layar selama 3 detik. 
@@ -37,7 +45,27 @@ export function CartProvider({children}: { children: ReactNode }) {
             setShowToast(false);
             toastTimeout.current = null;
         }, 3000);
-    }
+    };
+
+    const triggerModal = (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => {
+        setModalConfig({
+            showModal: true,
+            modalMsg: msg,
+            modalType: modalType,
+            yesAction: (() => {
+                if(yesAction) yesAction();
+                clearModal();
+            }),
+            noAction: (() => {
+                if(noAction) noAction();
+                clearModal();
+            })
+        });
+    };
+
+    const clearModal = () => {
+        setModalConfig((prev) => ({...prev, showModal: false}));
+    };
 
     /**
      * Berfungsi untuk menghilangkan pesan toast secara manual sebelum waktu 3 detik habis.
@@ -58,7 +86,7 @@ export function CartProvider({children}: { children: ReactNode }) {
             if (storedCart) {
                 setCart(JSON.parse(storedCart));
             }
-        },0)
+        }, 0)
 
         return () => clearTimeout(setTimer);
     }, []);
@@ -84,11 +112,11 @@ export function CartProvider({children}: { children: ReactNode }) {
             if (existingItem) {
                 return prevCart.map(cartItem =>
                     cartItem.id === item.id
-                        ? {...cartItem, quantity: cartItem.quantity + 1}
+                        ? { ...cartItem, quantity: cartItem.quantity + 1 }
                         : cartItem
                 );
             }
-            return [...prevCart, {...item, quantity: 1}];
+            return [...prevCart, { ...item, quantity: 1 }];
         });
     };
 
@@ -111,7 +139,7 @@ export function CartProvider({children}: { children: ReactNode }) {
      */
     const decreaseQuantity = (itemId: number) => {
         setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId ? {...item, quantity: item.quantity - 1} : item);
+            return prevCart.map(item => item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item);
         });
     };
 
@@ -124,7 +152,7 @@ export function CartProvider({children}: { children: ReactNode }) {
      */
     const updateQuantity = (itemId: number, quantity: number) => {
         setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId ? {...item, quantity} : item);
+            return prevCart.map(item => item.id === itemId ? { ...item, quantity } : item);
         });
     };
 
@@ -138,9 +166,10 @@ export function CartProvider({children}: { children: ReactNode }) {
 
     return (
         <CartContext.Provider value={{
-            cart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity, triggerToast, clearToast
+            cart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity, triggerToast, clearToast, triggerModal
         }}>
             {showToast && <Toast message={message} type={type} />}
+            {modalConfig.showModal && <Modal msg={modalConfig.modalMsg} modalType={modalConfig.modalType} yesAction={modalConfig.yesAction} noAction={modalConfig.noAction}/>}
             {children}
         </CartContext.Provider>
     );

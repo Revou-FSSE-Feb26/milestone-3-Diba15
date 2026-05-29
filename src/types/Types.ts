@@ -26,6 +26,7 @@ export interface CartContextType {
     clearCart: () => void,
     triggerToast: (message: string, type: 'success' | 'error' | 'warning') => void;
     clearToast: () => void;
+    triggerModal: (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => void;
 }
 
 export const categories: string[] = [

@@ -1,11 +1,11 @@
 "use client";
 import {useCart} from "@/context/CartContext";
-import CartCard from "@/components/cart/cartCard";
+import CartCard from "@/components/cart/CartCard";
 import Link from "next/link";
 import { CartItem } from "@/types/Types";
 
 export default function CartPage() {
-    const {cart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast} = useCart();
+    const {cart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal} = useCart();
 
     // Fungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
     // jika tidak maka item akan dihapus dari keranjang
@@ -14,8 +14,12 @@ export default function CartPage() {
                 decreaseQuantity(item.id);
                 triggerToast(`${item.name} quantity decreased`, "warning");
             } else {
-                removeFromCart(item.id);
-                triggerToast(`${item.name} removed from cart`, "error");
+                // removeFromCart(item.id);
+                triggerModal(`Are you sure you want to remove ${item.name} from the cart?`, "confirmation", () => {
+                    removeFromCart(item.id);
+                    triggerToast(`${item.name} removed from cart`, "error");
+                }, () => {});
+                // triggerToast(`${item.name} removed from cart`, "error");
             }
         };
         

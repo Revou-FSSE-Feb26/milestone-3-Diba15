@@ -1,7 +1,7 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import { Item } from "@/types/Types";
-import CartButton from "@/components/ui/CartButton";
+import CartButton from "@/components/cart/CartButton";
 
 export default function AddCartButton({ item }: { item: Item }) {
     const { cart, addToCart, decreaseQuantity, removeFromCart, triggerToast } = useCart();

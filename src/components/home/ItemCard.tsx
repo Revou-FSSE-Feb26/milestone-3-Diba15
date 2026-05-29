@@ -1,11 +1,11 @@
-import {Item} from "@/types/Types";
+import { Item } from "@/types/Types";
 import Image from "next/image";
 import Link from "next/link";
-import {useCart} from "@/context/CartContext";
-import CartButton from "@/components/ui/CartButton";
+import { useCart } from "@/context/CartContext";
+import CartButton from "@/components/cart/CartButton";
 
-export default function ItemCard({Item}: { Item: Item }) {
-    const {cart, addToCart, decreaseQuantity, removeFromCart, triggerToast} = useCart();
+export default function ItemCard({ Item }: { Item: Item }) {
+    const { cart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
 
     const cartItem = cart.find((cartItem) => cartItem.id === Item.id);
 
@@ -15,16 +15,22 @@ export default function ItemCard({Item}: { Item: Item }) {
     }
 
     const handleRemoveFromCart = (): void => {
-        if(cartItem && cartItem.quantity > 1) {
+        if (cartItem && cartItem.quantity > 1) {
             decreaseQuantity(Item.id);
             triggerToast(`${Item.name} quantity decreased`, "warning");
         } else {
-            removeFromCart(Item.id);
-            triggerToast(`${Item.name} removed from cart`, "error");
+            triggerModal(
+                `Are you sure you want to remove ${Item.name} from the cart?`,
+                "confirmation",
+                () => {
+                    removeFromCart(Item.id);
+                    triggerToast(`${Item.name} removed from cart`, "error");
+                }
+            );
         }
     }
 
-    const {id, name, price, img_url, category}: Item = Item;
+    const { id, name, price, img_url, category }: Item = Item;
 
     return (
         <div className={"bg-white rounded-lg shadow-md p-4 flex flex-col items-center justify-between gap-2"}>

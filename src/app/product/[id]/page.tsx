@@ -1,6 +1,6 @@
 import items from "@/data/items.json";
 import Image from "next/image";
-import AddCartButton from "@/components/detailItem/addCartButton";
+import AddCartButton from "@/components/detailItem/AddCartButton";
 import {Item} from "@/types/Types";
 
 const itemsData: Item[] = items.items;
