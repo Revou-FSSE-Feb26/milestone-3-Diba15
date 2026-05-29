@@ -30,7 +30,7 @@ export default function CartPage() {
 
     const checkOut = () => {
         clearCart();
-        triggerToast("Checkout successful!", "success");
+        triggerModal("Thank you for your purchase!", "alert");
     }
 
     return (
