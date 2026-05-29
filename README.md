@@ -19,15 +19,15 @@ bun dev
 
 ## 📋 Features
 
-| Feature                | Description                                |
-| ---------------------- | ------------------------------------------ |
-| Add to cart            | Add products to the shopping cart          |
-| Decrease item quantity | Decrease the quantity of items in the cart |
-| Checkout               | Checkout the items in the cart             |
-| Clear cart             | Clear all items in the cart                |
-| Remove item            | Remove an item from the cart               |
-| Filter product         | Filter product by category                 |
-| Notification Toast     | Notification for user with Toast           |
+| Feature                    | Description                                |
+| -------------------------- | ------------------------------------------ |
+| Add to cart                | Add products to the shopping cart          |
+| Decrease item quantity     | Decrease the quantity of items in the cart |
+| Checkout                   | Checkout the items in the cart             |
+| Clear cart                 | Clear all items in the cart                |
+| Remove item                | Remove an item from the cart               |
+| Filter product             | Filter product by category                 |
+| Notification Toast & Modal | Notification for user with Toast & Modal   |
 
 ---
 
@@ -69,7 +69,7 @@ milestone-3-Diba15/
 │   │   │   │   └── page.js
 │   │   └── promotions/      # Route: /promotions
 │   │       └── page.js
-│   ├── components/         # Komponen reusable (Button, Navbar, Footer)
+│   ├── components/         # Komponen reusable (Button, Navbar, Footer, Etc.)
 │   ├── context/            # Berisi konteks (CartContext)
 │   ├── data/               # Berisi dummy data aplikasi
 │   └── types/              # Berisi type data aplikasi

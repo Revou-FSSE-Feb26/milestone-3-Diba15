@@ -47,6 +47,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }, 3000);
     };
 
+    /**
+     * Berfungsi untuk trigger modal dengan pesan tertentu dan jenis modal (konfirmasi atau peringatan). Modal ini dapat digunakan 
+     * untuk meminta konfirmasi dari pengguna sebelum melakukan tindakan tertentu, seperti menghapus item dari keranjang.
+     * @param msg Pesan yang akan ditampilkan di dalam modal.
+     * @param modalType Jenis modal, bisa berupa 'confirmation' untuk modal konfirmasi atau 'alert' untuk modal peringatan.
+     * @param yesAction Fungsi yang akan dijalankan jika pengguna memilih "Yes" pada modal konfirmasi.
+     * @param noAction Fungsi yang akan dijalankan jika pengguna memilih "No" pada modal konfirmasi.
+     */
     const triggerModal = (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => {
         setModalConfig({
             showModal: true,
