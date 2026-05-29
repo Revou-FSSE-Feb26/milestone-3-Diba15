@@ -19,7 +19,6 @@ export default function CartPage() {
             }
         };
         
-        // Fungsi untuk menambahkan item ke keranjang, setelah item ditambahkan maka akan menampilkan toast selama 3 detik
         const handleAddToCart = (item: CartItem) => {
             addToCart(item);
             triggerToast(`${item.name} added to cart`, "success");

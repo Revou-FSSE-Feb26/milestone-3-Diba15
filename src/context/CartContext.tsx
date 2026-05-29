@@ -13,6 +13,9 @@ export function CartProvider({children}: { children: ReactNode }) {
     const [type, setType] = useState<"success" | "error" | "warning">("success");
     const toastTimeout = useRef<NodeJS.Timeout | null>(null);
 
+
+
+
     const triggerToast = (message: string, type: 'success' | 'error' | 'warning') => {
         setMessage(message);
         setType(type);
