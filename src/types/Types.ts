@@ -24,6 +24,8 @@ export interface CartContextType {
     removeFromCart: (itemId: number) => void,
     updateQuantity: (itemId: number, quantity: number) => void,
     clearCart: () => void,
+    triggerToast: (message: string, type: 'success' | 'error' | 'warning') => void;
+    clearToast: () => void;
 }
 
 export const categories: string[] = [

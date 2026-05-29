@@ -4,9 +4,14 @@ import Link from "next/link";
 import {useCart} from "@/context/CartContext";
 
 export default function ItemCard({Item}: { Item: Item }) {
-    const {addToCart} = useCart();
+    const {addToCart, triggerToast} = useCart();
 
-    const {id, name, price, img_url, category} = Item;
+    const handleAddToCart = (): void => {
+        addToCart(Item);
+        triggerToast(`${Item.name} added to cart`, "success");
+    }
+
+    const {id, name, price, img_url, category}: Item = Item;
 
     return (
         <div className={"bg-white rounded-lg shadow-md p-4 flex flex-col items-center justify-between gap-2"}>
@@ -29,7 +34,7 @@ export default function ItemCard({Item}: { Item: Item }) {
                     <p className={"text-xl font-bold"}>$ {price}</p>
                 </div>
             </Link>
-            <button onClick={() => addToCart(Item)}
+            <button onClick={() => handleAddToCart()}
                     className={"bg-primary text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-accent w-full"}><i
                 className={"fas fa-shopping-cart"}></i> Add to Cart
             </button>

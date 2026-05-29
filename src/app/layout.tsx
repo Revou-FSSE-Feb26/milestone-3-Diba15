@@ -3,8 +3,8 @@ import { Poppins} from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import React from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/ui/Navbar";
+import Footer from "@/components/ui/Footer";
 import {CartProvider} from "@/context/CartContext";
 
 const poppins = Poppins({

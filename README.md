@@ -51,7 +51,7 @@ bun dev
 
 ```bash
 milestone-3-Diba15/
-├── node_modules/           # Folder dependencies (otomatis dibuat oleh npm install)
+├── node_modules/           # Folder dependencies (otomatis dibuat oleh bun install)
 ├── public/                 # File statis (gambar, favicon, font)
 ├── src/                    # (Opsional tapi direkomendasikan) Folder source utama
 │   ├── app/                # Kunci utama routing dan halaman

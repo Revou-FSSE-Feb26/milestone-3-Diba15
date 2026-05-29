@@ -1,12 +1,40 @@
 "use client";
 
-import {createContext, useContext, useState, useEffect, ReactNode} from "react";
+import {createContext, useContext, useState, useEffect, ReactNode, useRef} from "react";
 import {Item, CartItem, CartContextType} from "@/types/Types";
+import Toast from "@/components/ui/Toast";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({children}: { children: ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
+    const [showToast, setShowToast] = useState(false);
+    const [message, setMessage] = useState("");
+    const [type, setType] = useState<"success" | "error" | "warning">("success");
+    const toastTimeout = useRef<NodeJS.Timeout | null>(null);
+
+    const triggerToast = (message: string, type: 'success' | 'error' | 'warning') => {
+        setMessage(message);
+        setType(type);
+        setShowToast(true);
+
+        if (toastTimeout.current) {
+            clearTimeout(toastTimeout.current);
+        }
+
+        toastTimeout.current = setTimeout(() => {
+            setShowToast(false);
+            toastTimeout.current = null;
+        }, 3000);
+    }
+
+    const clearToast = () => {
+        setShowToast(false);
+        if (toastTimeout.current) {
+            clearTimeout(toastTimeout.current);
+            toastTimeout.current = null;
+        }
+    }
 
     // Menggunakan useEffect untuk memuat data keranjang dari localStorage saat komponen pertama kali dimuat.
     // Jika ada data yang disimpan, maka data tersebut akan di-parse dan diset ke state cart.
@@ -74,8 +102,9 @@ export function CartProvider({children}: { children: ReactNode }) {
 
     return (
         <CartContext.Provider value={{
-            cart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity
+            cart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity, triggerToast, clearToast
         }}>
+            {showToast && <Toast message={message} type={type} />}
             {children}
         </CartContext.Provider>
     );

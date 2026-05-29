@@ -2,13 +2,32 @@
 import {useCart} from "@/context/CartContext";
 import CartCard from "@/components/cart/cartCard";
 import Link from "next/link";
+import { CartItem } from "@/types/Types";
 
 export default function CartPage() {
-    const {cart, clearCart} = useCart();
+    const {cart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast} = useCart();
+
+    // Fungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
+    // jika tidak maka item akan dihapus dari keranjang
+    const decreaseItem = (item: CartItem) => {
+            if (item.quantity > 1) {
+                decreaseQuantity(item.id);
+                triggerToast(`${item.name} quantity decreased`, "warning");
+            } else {
+                removeFromCart(item.id);
+                triggerToast(`${item.name} removed from cart`, "error");
+            }
+        };
+        
+        // Fungsi untuk menambahkan item ke keranjang, setelah item ditambahkan maka akan menampilkan toast selama 3 detik
+        const handleAddToCart = (item: CartItem) => {
+            addToCart(item);
+            triggerToast(`${item.name} added to cart`, "success");
+        };
 
     const checkOut = () => {
-        alert("Checkout successful! Thank you for your purchase.");
         clearCart();
+        triggerToast("Checkout successful!", "success");
     }
 
     return (
@@ -25,7 +44,7 @@ export default function CartPage() {
                 <div className={"flex flex-col gap-4"}>
                     <div className={"flex flex-col gap-4 max-h-[70vh] overflow-y-auto"}>
                         {cart.map(item => (
-                            <CartCard key={item.id} item={item}/>
+                            <CartCard key={item.id} item={item} handleAdd={handleAddToCart} handleDecrease={decreaseItem}/>
                         ))}
                     </div>
                     <button onClick={checkOut}
