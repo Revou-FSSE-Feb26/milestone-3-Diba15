@@ -21,7 +21,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
     }
 
     return (
-        <div className="flex flex-col flex-1 items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto max-h-96">
+        <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">Product Detail</h1>
             <div className="flex flex-col md:flex-row gap-4">
                 <Image src={item.img_url} alt={item.name} width={300} height={300} className="object-cover w-auto h-auto rounded-lg" />
