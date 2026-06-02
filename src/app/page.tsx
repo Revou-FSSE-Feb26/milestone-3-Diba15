@@ -3,8 +3,8 @@
 import { categories, Item } from "@/types/Types";
 import ItemCard from "@/components/home/ItemCard";
 import items from "@/data/items.json";
-import { useEffect, useState } from "react";
-import { filterItemsByCategory } from "@/utils";
+import { useState } from "react";
+// import { filterItemsByCategory } from "@/utils";
 import ActionButton from "@/components/home/ActionButton";
 import {useRouter} from "next/navigation";
 

@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { useCart } from "@/context/CartContext";
-import {totalCartItems, cartTotalPrice} from "@/utils";
 
 interface ModalProps {
     msg: string;
@@ -11,8 +9,7 @@ interface ModalProps {
 
 export default function Modal({ msg, modalType, yesAction, noAction }: ModalProps) {
     const [isAnimate, setIsAnimate] = useState(false);
-    const { cart } = useCart();
-
+    
     useEffect(() => {
         const timeout = setTimeout(() => setIsAnimate(true), 10);
         return () => clearTimeout(timeout);
