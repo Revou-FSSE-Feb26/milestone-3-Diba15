@@ -17,15 +17,20 @@ export default function SearchPage() {
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Search Results for: {slug}</h1>
             {searchResults.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {searchResults.map((item) => (
-                        <ItemCard key={item.id} Item={item} />
-                    ))}
+                <div>
+                    <h1 className="text-2xl font-bold mb-4">Search Results for: {slug}</h1>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {searchResults.map((item) => (
+                            <ItemCard key={item.id} Item={item} />
+                        ))}
+                    </div>
                 </div>
             ) : (
-                <p>No products found for &quot;{slug}&quot;.</p>
+                <div className="text-center mt-8">
+                    <h1 className="text-2xl font-bold mb-4">Search Results for: {slug}</h1>
+                    <p>No products found for &quot;{slug}&quot;.</p>
+                </div>
             )}
 
             <ActionButton />
