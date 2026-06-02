@@ -2,7 +2,7 @@
 
 import { Item } from "@/types/Types";
 import items from "@/data/items.json";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import ItemCard from "@/components/home/ItemCard";
 import { useSearch } from "@/hooks";
 import ActionButton from "@/components/home/ActionButton";
@@ -10,9 +10,9 @@ import ActionButton from "@/components/home/ActionButton";
 const itemsData: Item[] = items.items;
 
 export default function SearchPage() {
-    const params = useParams();
+    const params = useSearchParams();
     // Jika slug adalah array, ambil elemen pertama, jika tidak, gunakan langsung. decodeURIComponent agar karakter khusus bisa dicari.
-    const slug = Array.isArray(params.slug) ? decodeURIComponent(params.slug[0]) : decodeURIComponent(params.slug || "");
+    const slug = decodeURIComponent(params.get("query") || "");
     const searchResults = useSearch(slug, itemsData);
 
     return (
