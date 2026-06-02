@@ -1,36 +1,37 @@
 "use client";
-import {useCart} from "@/context/CartContext";
+import { useCart } from "@/context/CartContext";
 import CartCard from "@/components/cart/CartCard";
 import Link from "next/link";
 import { CartItem } from "@/types/Types";
+import { cartTotalPrice, totalCartItems } from "@/utils";
 
 export default function CartPage() {
-    const {cart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal} = useCart();
+    const { cart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
 
     // Fungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
     // jika tidak maka item akan dihapus dari keranjang
     const decreaseItem = (item: CartItem) => {
-            if (item.quantity > 1) {
-                decreaseQuantity(item.id);
-                triggerToast(`${item.name} quantity decreased`, "warning");
-            } else {
-                // removeFromCart(item.id);
-                triggerModal(`Are you sure you want to remove ${item.name} from the cart?`, "confirmation", () => {
-                    removeFromCart(item.id);
-                    triggerToast(`${item.name} removed from cart`, "error");
-                }, () => {});
-                // triggerToast(`${item.name} removed from cart`, "error");
-            }
-        };
-        
-        const handleAddToCart = (item: CartItem) => {
-            addToCart(item);
-            triggerToast(`${item.name} added to cart`, "success");
-        };
+        if (item.quantity > 1) {
+            decreaseQuantity(item.id);
+            triggerToast(`${item.name} quantity decreased`, "warning");
+        } else {
+            // removeFromCart(item.id);
+            triggerModal(`Are you sure you want to remove ${item.name} from the cart?`, "confirmation", () => {
+                removeFromCart(item.id);
+                triggerToast(`${item.name} removed from cart`, "error");
+            }, () => { });
+            // triggerToast(`${item.name} removed from cart`, "error");
+        }
+    };
+
+    const handleAddToCart = (item: CartItem) => {
+        addToCart(item);
+        triggerToast(`${item.name} added to cart`, "success");
+    };
 
     const checkOut = () => {
         clearCart();
-        triggerModal("Thank you for your purchase!", "alert");
+        triggerModal(`Successfull Checkout ${totalCartItems(cart)} items with total price ${cartTotalPrice(cart)} `, "alert");
     }
 
     return (
@@ -47,11 +48,22 @@ export default function CartPage() {
                 <div className={"flex flex-col gap-4"}>
                     <div className={"flex flex-col gap-4 max-h-[70vh] overflow-y-auto"}>
                         {cart.map(item => (
-                            <CartCard key={item.id} item={item} handleAdd={handleAddToCart} handleDecrease={decreaseItem}/>
+                            <CartCard key={item.id} item={item} handleAdd={handleAddToCart} handleDecrease={decreaseItem} />
                         ))}
                     </div>
+
+                    {/* Total Price */}
+                    <div className={"flex flex-row items-center justify-between gap-4"}>
+                        <p className={"font-bold"}>Total Price:</p>
+                        <div className={"flex flex-col"}>
+                            <p className={"font-bold"}>{cartTotalPrice(cart)}</p>
+                            <p className={"text-sm text-gray-500"}>{totalCartItems(cart)} items</p>
+                        </div>
+                    </div>
+
+
                     <button onClick={checkOut}
-                            className={"bg-primary text-white px-4 py-2 rounded hover:bg-primary/80"}>
+                        className={"bg-primary text-white px-4 py-2 rounded hover:bg-primary/80"}>
                         Checkout
                     </button>
                 </div>

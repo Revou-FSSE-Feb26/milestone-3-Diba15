@@ -6,28 +6,35 @@ import items from "@/data/items.json";
 import { useEffect, useState } from "react";
 import { filterItemsByCategory } from "@/utils";
 import ActionButton from "@/components/home/ActionButton";
+import {useRouter} from "next/navigation";
 
 const itemsData: Item[] = items.items;
 
 export default function Home() {
-    const [selectedCategory, setSelectedCategory] = useState<string>("All");
+    // const [selectedCategory] = useState<string>("All");
 
-    const [filteredItems, setFilteredItems] = useState<Item[]>(itemsData);
+    const [filteredItems] = useState<Item[]>(itemsData);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            const filtered = filterItemsByCategory(itemsData, selectedCategory);
-            setFilteredItems(filtered);
-        }, 0);
-        return () => clearTimeout(timer);
-    }, [selectedCategory]);
+    const router = useRouter();
+
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         const filtered = filterItemsByCategory(itemsData, selectedCategory);
+    //         setFilteredItems(filtered);
+    //     }, 0);
+    //     return () => clearTimeout(timer);
+    // }, [selectedCategory]);
+
+    const handleSearch = (searchTerm: string) => {
+        router.push(`/search/${encodeURIComponent(searchTerm)}`);
+    }
 
     return (
         <div className="p-4">
             <div className="flex gap-2  transition-all cursor-pointer duration-300 w-full overflow-x-auto">
                 {
                     categories.map((category) => (
-                        <div key={category} className="hover:text-accent px-4 py-2 bg-accent/10 rounded-lg" onClick={() => setSelectedCategory(category)}>
+                        <div key={category} className="hover:text-accent px-4 py-2 bg-accent/10 rounded-lg" onClick={() => handleSearch(category)}>
                             <h2>{category}</h2>
                         </div>
                     ))

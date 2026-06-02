@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useCart } from "@/context/CartContext";
+import {totalCartItems, cartTotalPrice} from "@/utils";
 
 interface ModalProps {
     msg: string;
@@ -9,6 +11,7 @@ interface ModalProps {
 
 export default function Modal({ msg, modalType, yesAction, noAction }: ModalProps) {
     const [isAnimate, setIsAnimate] = useState(false);
+    const { cart } = useCart();
 
     useEffect(() => {
         const timeout = setTimeout(() => setIsAnimate(true), 10);
@@ -52,7 +55,7 @@ export default function Modal({ msg, modalType, yesAction, noAction }: ModalProp
                     ) : (
                         <button
                             onClick={() => handleClose(yesAction)}
-                            className={"bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"}
+                            className={"bg-primary text-white px-4 py-2 rounded hover:bg-accent transition-colors"}
                         >
                             OK
                         </button>
