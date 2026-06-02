@@ -4,7 +4,7 @@ import { Item } from "@/types/Types";
 import CartButton from "@/components/cart/CartButton";
 
 export default function AddCartButton({ item }: { item: Item }) {
-    const { cart, addToCart, decreaseQuantity, removeFromCart, triggerToast } = useCart();
+    const { cart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
 
     const cartItem = cart.find((cartItem) => cartItem.id === item.id);
 
@@ -18,8 +18,14 @@ export default function AddCartButton({ item }: { item: Item }) {
             decreaseQuantity(item.id);
             triggerToast(`${item.name} quantity decreased`, "warning");
         } else {
-            removeFromCart(item.id);
-            triggerToast(`${item.name} removed from cart`, "error");
+            triggerModal(
+                `Are you sure you want to remove ${item.name} from the cart?`,
+                "confirmation",
+                () => {
+                    removeFromCart(item.id);
+                    triggerToast(`${item.name} removed from cart`, "error");
+                }
+            );
         }
     }
 

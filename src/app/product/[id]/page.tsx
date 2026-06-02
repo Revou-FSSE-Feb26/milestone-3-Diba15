@@ -2,6 +2,7 @@ import items from "@/data/items.json";
 import Image from "next/image";
 import AddCartButton from "@/components/detailItem/AddCartButton";
 import {Item} from "@/types/Types";
+import ActionButton from "@/components/home/ActionButton";
 
 const itemsData: Item[] = items.items;
 
@@ -22,7 +23,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
 
     return (
         <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Product Detail</h1>
+            <h1 className="text-2xl font-bold mb-4 self-start">Product Detail</h1>
             <div className="flex flex-col md:flex-row gap-4">
                 <Image src={item.img_url} alt={item.name} width={300} height={300} className="object-cover w-auto h-auto rounded-lg" />
                 <div className={"flex flex-col gap-2 max-w-md justify-center"}>
@@ -32,6 +33,8 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
                     <AddCartButton item={item} />
                 </div>
             </div>
+
+            <ActionButton />
         </div>
     );
 }
