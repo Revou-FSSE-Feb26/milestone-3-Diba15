@@ -1,19 +1,13 @@
 "use client";
 
-import { useCart } from "@/context/CartContext";
 import Brand from "@/components/ui/Brand";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {totalCartItems} from "@/utils";
 
 export default function Navbar() {
     // Ambil data 'cart' dari context
-    const { cart } = useCart();
     const router = useRouter();
     const [searchTerm, setSearchTerm] = useState("");
-
-    const cartTotal = totalCartItems(cart);
 
     const handleSearch = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -25,8 +19,8 @@ export default function Navbar() {
     }
 
     return (
-        <nav className="text-white p-4 flex justify-between items-center">
-            <div className="hidden md:block">
+        <nav className="text-white p-4 flex flex-wrap gap-4 justify-between items-center">
+            <div>
                 <Brand />
             </div>
 
@@ -45,20 +39,6 @@ export default function Navbar() {
                     <i className="fa-solid fa-magnifying-glass"></i>
                 </button>
             </form>
-
-            <div className="hidden md:flex gap-2 items-center relative">
-                {cartTotal > 0 && (
-                    <span
-                        className="absolute -top-2 -right-2 bg-accent text-white rounded-full min-w-5 h-5 px-1.5 flex items-center justify-center text-xs font-bold animate-fade-in">
-                        {cartTotal}
-                    </span>
-                )}
-
-                {/* Ikon Keranjang Belanja */}
-                <Link href="/cart">
-                    <i className="fa-solid fa-cart-shopping text-xl cursor-pointer hover:text-accent transition-colors"></i>
-                </Link>
-            </div>
         </nav>
     );
 }

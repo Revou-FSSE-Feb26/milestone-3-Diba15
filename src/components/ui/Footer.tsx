@@ -4,7 +4,7 @@ import Brand from "@/components/ui/Brand";
 export default function Footer() {
     return (
         <footer className={"flex flex-col bg-foreground text-white p-4"}>
-            <div className={"flex flex-col md:flex-row md:justify-evenly gap-4 items-center"}>
+            <div className={"flex flex-row flex-wrap justify-evenly gap-4 items-center"}>
                 <Brand textSize="text-2xl" />
                 <div className={"mb-4 flex flex-col gap-2"}>
                     <h2 className={"text-xl font-bold"}>Links:</h2>
