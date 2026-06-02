@@ -1,9 +1,11 @@
 "use client"
 
-import {categories, Item} from "@/types/Types";
+import { categories, Item } from "@/types/Types";
 import ItemCard from "@/components/home/ItemCard";
 import items from "@/data/items.json";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
+import { filterItemsByCategory } from "@/utils";
+import ActionButton from "@/components/home/ActionButton";
 
 const itemsData: Item[] = items.items;
 
@@ -14,14 +16,8 @@ export default function Home() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (selectedCategory === "All") {
-                setFilteredItems(itemsData);
-            } else {
-                const filtered = itemsData.filter(
-                    (item) => item.category === selectedCategory
-                );
-                setFilteredItems(filtered);
-            }
+            const filtered = filterItemsByCategory(itemsData, selectedCategory);
+            setFilteredItems(filtered);
         }, 0);
         return () => clearTimeout(timer);
     }, [selectedCategory]);
@@ -40,7 +36,7 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
                 {filteredItems.map((item) => (
-                    <ItemCard key={item.id} Item={item}/>
+                    <ItemCard key={item.id} Item={item} />
                 ))}
             </div>
 
@@ -50,6 +46,8 @@ export default function Home() {
                     No products found in this category.
                 </div>
             )}
+
+            <ActionButton />
         </div>
     );
 }

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import CartButton from "@/components/cart/CartButton";
+import { priceFormatter } from "@/utils";
 
 export default function ItemCard({ Item }: { Item: Item }) {
     const { cart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
@@ -50,7 +51,7 @@ export default function ItemCard({ Item }: { Item: Item }) {
                         <h2 className={"text-md md:text-lg font-bold"}>{name}</h2>
                         <p className={"text-gray-500"}>{category}</p>
                     </div>
-                    <p className={"text-lg md:text-xl font-bold"}>$ {price}</p>
+                    <p className={"text-lg md:text-xl font-bold"}>{priceFormatter(Number(price))}</p>
                 </div>
             </Link>
             <CartButton handleAddToCart={handleAddToCart} handleRemoveFromCart={handleRemoveFromCart} itemCount={cartItem ? cartItem.quantity : 0} />

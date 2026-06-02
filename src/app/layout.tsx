@@ -1,11 +1,11 @@
-import type {Metadata} from "next";
-import { Poppins} from "next/font/google";
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import React from "react";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
-import {CartProvider} from "@/context/CartContext";
+import { CartProvider } from "@/context/CartContext";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -15,12 +15,12 @@ const poppins = Poppins({
 export const metadata: Metadata = {
     title: "Revoshop",
     description: "Simple e-commerce application built with Next.js and Tailwind CSS",
-    authors: [{'name': 'Dimas Bagas'}],
+    authors: [{ 'name': 'Dimas Bagas' }],
     keywords: ['e-commerce', 'nextjs', 'tailwindcss'],
     creator: 'Dimas Bagas',
 };
 
-export default function RootLayout({children,}: Readonly<{ children: React.ReactNode; }>) {
+export default function RootLayout({ children, }: Readonly<{ children: React.ReactNode; }>) {
     return (
         <html
             lang="en"
@@ -29,13 +29,13 @@ export default function RootLayout({children,}: Readonly<{ children: React.React
         >
             <body className="min-h-full flex flex-col">
                 <CartProvider>
-                    <header>
-                        <Navbar/>
+                    <header className="sticky top-0 z-50 bg-primary">
+                        <Navbar />
                     </header>
                     <main className={"flex-1 flex flex-col bg-background justify-center"}>
                         {children}
                     </main>
-                    <Footer/>
+                    <Footer />
                 </CartProvider>
             </body>
             <Script
