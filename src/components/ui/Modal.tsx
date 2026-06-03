@@ -25,7 +25,7 @@ export default function Modal({ msg, modalType, yesAction, noAction }: ModalProp
 
     return (
         <div
-            className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out ${isAnimate ? "opacity-100" : "opacity-0"
+            className={`fixed inset-0 bg-black/50 z-999 flex items-center justify-center transition-opacity duration-300 ease-in-out ${isAnimate ? "opacity-100" : "opacity-0"
                 }`}
         >
             <div
