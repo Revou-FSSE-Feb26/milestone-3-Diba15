@@ -26,8 +26,8 @@ bun dev
 | Checkout                   | Checkout the items in the cart             |
 | Clear cart                 | Clear all items in the cart                |
 | Remove item                | Remove an item from the cart               |
-| Filter product             | Filter product by category                 |
 | Notification Toast & Modal | Notification for user with Toast & Modal   |
+| Search product             | Search product by name & Categories        |
 
 ---
 
@@ -57,21 +57,26 @@ milestone-3-Diba15/
 ├── public/                 # File statis (gambar, favicon, font)
 ├── src/                    # (Opsional tapi direkomendasikan) Folder source utama
 │   ├── app/                # Kunci utama routing dan halaman
-│   │   ├── layout.js       # Root Layout (Wajib)
-│   │   ├── page.js         # Halaman Utama (/)
+│   │   ├── layout.tsx      # Root Layout (Wajib)
+│   │   ├── page.tsx        # Halaman Utama (/)
+│   │   ├── not-found.tsx   # Halaman Not Found (/404)
 │   │   ├── global.css      # Global styles
-│   │   ├── cart/            # Route: /cart
-│   │   │   └── page.js
+│   │   ├── cart/           # Route: /cart
+│   │   │   └── page.tsx
 │   │   ├── faq/            # Route: /faq
-│   │   │   └── page.js
-│   │   ├── product/            # Route: /product/[id]
+│   │   │   └── page.tsx
+│   │   ├── product/        # Route: /product/[id]
 │   │   │   ├── [id]
-│   │   │   │   └── page.js
-│   │   └── promotions/      # Route: /promotions
-│   │       └── page.js
+│   │   │   │   └── page.tsx
+│   │   ├── promotions/     # Route: /promotions
+│   │   │   └── page.tsx
+│   │   └── search/         # Route: /search
+│   │       └── page.tsx
 │   ├── components/         # Komponen reusable (Button, Navbar, Footer, Etc.)
 │   ├── context/            # Berisi konteks (CartContext)
 │   ├── data/               # Berisi dummy data aplikasi
+│   ├── hooks/              # Berisi custom hooks
+│   ├── utils/              # Berisi utility functions
 │   └── types/              # Berisi type data aplikasi
 ├── .gitignore
 ├── next.config.ts          # Konfigurasi Next.js
