@@ -1,3 +1,5 @@
+"use client";
+
 import { Item } from "@/types/Types";
 import items from "@/data/items.json";
 import { useSearchParams } from "next/navigation";
