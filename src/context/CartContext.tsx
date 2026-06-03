@@ -1,3 +1,40 @@
+/**
+ * Penanda CartContext sebagai catatan:
+ * File ini berfungsi sebagai penyedia konteks untuk keranjang belanja (CartContext) 
+ * yang mengelola state dan fungsi-fungsi terkait keranjang belanja.
+ *  Fungsi-fungsi yang disediakan oleh CartContext meliputi:
+ * - addToCart: Menambahkan item ke dalam keranjang.
+ * - removeFromCart: Menghapus item dari keranjang berdasarkan ID item.
+ * - decreaseQuantity: Mengurangi jumlah item dalam keranjang berdasarkan ID item.
+ * - increaseQuantity: Menambahkan jumlah item dalam keranjang berdasarkan ID item.
+ * - clearCart: Mengosongkan keranjang.
+ * - triggerToast: Menampilkan pesan toast dengan jenis tertentu (sukses, error, peringatan).
+ * - triggerModal: Menampilkan modal dengan pesan dan jenis tertentu (konfirmasi atau peringatan).
+ * 
+ * CartContext juga menyimpan state keranjang (cart) yang berisi daftar item yang ada di dalam keranjang.
+ * 
+ * Menggunakan CartContext karena memungkinkan kita untuk mengelola state keranjang belanja secara global di seluruh aplikasi, 
+ * sehingga komponen-komponen yang membutuhkan informasi tentang keranjang dapat dengan mudah mengakses dan memodifikasi state 
+ * tersebut tanpa harus melakukan prop drilling.
+ * 
+ * prop drilling adalah proses mengirimkan data dari komponen induk ke komponen anak melalui props, yang bisa menjadi rumit dan 
+ * sulit untuk dikelola ketika ada banyak level komponen yang terlibat. Dengan menggunakan konteks, 
+ * kita dapat menghindari prop drilling dan membuat kode lebih bersih dan mudah dipelihara.
+ * 
+ * contoh prop drilling adalah ketika kita memiliki komponen A yang memiliki state tertentu, dan kita ingin menggunakan 
+ * state tersebut di komponen C yang merupakan anak dari B, maka kita harus mengirimkan state tersebut dari A ke B melalui 
+ * props, dan kemudian dari B ke C melalui props lagi.
+ * 
+ * Tapi di project ini kita menggunakan CartContext untuk mengelola state keranjang belanja, 
+ * sehingga kita tidak perlu melakukan prop drilling untuk mengakses state keranjang di komponen-komponen yang membutuhkannya,
+ * kita bisa langsung menggunakan useCart() untuk mengakses state dan fungsi-fungsi yang disediakan 
+ * oleh CartContext di mana saja dalam aplikasi selama berada di dalam CartProvider.
+ * 
+ * Contoh penggunaan jika di project ini ketika kita ingin menambahkan item ke dalam keranjang di komponen lain, kita bisa 
+ * langsung menggunakan fungsi addToCart yang disediakan oleh CartContext tanpa harus mengirimkan fungsi tersebut melalui 
+ * props dari komponen induk.
+ */
+
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
@@ -5,6 +42,8 @@ import { Item, CartItem, CartContextType } from "@/types/Types";
 import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
 
+// Membuat konteks untuk keranjang belanja (CartContext) dengan tipe CartContextType. 
+// Nilai awalnya adalah undefined, yang berarti bahwa konteks ini harus digunakan di dalam CartProvider.
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 /**
