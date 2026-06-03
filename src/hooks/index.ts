@@ -1,3 +1,4 @@
+"use client";
 
 import { useState, useEffect } from "react";
 import { Item } from "@/types/Types";
@@ -31,9 +32,9 @@ export function useSearch(searchTerm: string, allItems: Item[]): Item[] {
         );
 
         // Normalize the results to avoid duplicates
-        const normalizeResults = async () => {
+        const normalizeResults = () => {
             const uniqueResults = new Set([...filteredwithTitle, ...filteredWithCategories]);
-            await setSearchResults(Array.from(uniqueResults));
+            setSearchResults(Array.from(uniqueResults));
         }
 
         normalizeResults();

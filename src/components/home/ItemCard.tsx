@@ -1,3 +1,5 @@
+"use client";
+
 import { Item } from "@/types/Types";
 import Image from "next/image";
 import Link from "next/link";

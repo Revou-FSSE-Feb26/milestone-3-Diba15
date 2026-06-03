@@ -14,7 +14,7 @@ export default function Navbar() {
 
         if (searchTerm.trim() !== "") {
             // Arahkan ke halaman pencarian dengan query parameter
-            router.push(`/search?query=${encodeURIComponent(searchTerm)}`);
+            router.push(`/search?searchTerm=${encodeURIComponent(searchTerm)}`);
         }
     }
 
