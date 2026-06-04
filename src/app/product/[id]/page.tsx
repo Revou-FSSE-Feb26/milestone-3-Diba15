@@ -1,25 +1,40 @@
-import items from "@/data/items.json";
+"use client";
+
 import Image from "next/image";
 import AddCartButton from "@/components/detailItem/AddCartButton";
-import {Item} from "@/types/Types";
+import { Item } from "@/types/Types";
 import ActionButton from "@/components/home/ActionButton";
+import { useState, useEffect } from "react";
+import { getProductById } from "@/api";
 
-const itemsData: Item[] = items.items;
+export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
+    const [itemsData, setItemsData] = useState<Item[]>([]);
 
-export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
-    // Await params-nya karena params adalah sebuah Promise
-    const resolvedParams = await params;
+    useEffect(() => {
+        const fetchProduct = async () => {
 
-    // Konversi id dari string URL menjadi number agar cocok dengan ID di JSON
-    const id: number = Number(resolvedParams.id);
+            // Await params-nya karena params adalah sebuah Promise
+            const resolvedParams = await params;
 
-    // Cari item berdasarkan id yang tipenya sudah sama-sama number
-    const item = itemsData.find((item) => item.id === id);
+            // Konversi id dari string URL menjadi number agar cocok dengan ID di JSON
+            const id: number = Number(resolvedParams.id);
+
+            try {
+                const product = await getProductById(id);
+                setItemsData([product]);
+            } catch (error) {
+                console.error("Error fetching product:", error);
+            }
+        };
+        fetchProduct();
+    }, [params]);
 
     // Berikan validasi jika produk tidak ditemukan
-    if (!item) {
+    if (!itemsData[0]) {
         return <div className="p-10 text-center">Produk tidak ditemukan!</div>;
     }
+
+    const item = itemsData[0];
 
     return (
         <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">

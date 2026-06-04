@@ -1,18 +1,33 @@
+"use client";
+
 import { categories, Item } from "@/types/Types";
 import ItemCard from "@/components/home/ItemCard";
-import items from "@/data/items.json";
 import ActionButton from "@/components/home/ActionButton";
 import Link from "next/link";
+import {getProducts} from "@/api";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-    const itemsData: Item[] = items.items;
+    const [itemsData, setItemsData] = useState<Item[]>([]);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const products = await getProducts();
+                setItemsData(products);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        };
+        fetchProducts();
+    }, []);
 
     return (
         <div className="p-4">
             <div className="flex gap-2  transition-all cursor-pointer duration-300 w-full overflow-x-auto">
                 {
                     categories.map((category) => (
-                        <Link key={category} href={{ pathname: '/search', query: { searchTerm: encodeURIComponent(category) } }} className="hover:text-accent px-4 py-2 bg-accent/10 rounded-lg">
+                        <Link key={category} href={{ pathname: '/search', query: { category: encodeURIComponent(category) } }} className="hover:text-accent px-4 py-2 bg-accent/10 rounded-lg">
                             <h2>{category}</h2>
                         </Link>
                     ))
