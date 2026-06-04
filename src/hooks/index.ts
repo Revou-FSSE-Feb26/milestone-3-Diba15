@@ -23,7 +23,7 @@ export function useSearch(searchTerm: string, allItems: Item[]): Item[] {
             return;
         }
 
-        if (normalizedSearchTerm === "All") {
+        if (normalizedSearchTerm === "all") {
             setTimeout(() => {
                 setSearchResults(allItems);
             }, 0);
