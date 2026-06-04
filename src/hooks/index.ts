@@ -12,23 +12,31 @@ import { Item } from "@/types/Types";
  */
 export function useSearch(searchTerm: string, allItems: Item[]): Item[] {
     const [searchResults, setSearchResults] = useState<Item[]>([]);
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
     useEffect(() => {
         // Jika searchTerm kosong, kembalikan array kosong
-        if (!searchTerm) {
+        if (!normalizedSearchTerm) {
             setTimeout(() => {
                 setSearchResults([]);
             }, 0);
             return;
         }
 
+        if (normalizedSearchTerm === "All") {
+            setTimeout(() => {
+                setSearchResults(allItems);
+            }, 0);
+            return;
+        }
+
         // Lakukan pemfilteran item
         const filteredwithTitle = allItems.filter(
-            (item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())
+            (item) => item.name.toLowerCase().includes(normalizedSearchTerm)
         );
 
         const filteredWithCategories = allItems.filter(
-            (item) => item.category.toLowerCase().includes(searchTerm.toLowerCase())
+            (item) => item.category.toLowerCase().includes(normalizedSearchTerm)
         );
 
         // Normalize the results to avoid duplicates
@@ -38,7 +46,7 @@ export function useSearch(searchTerm: string, allItems: Item[]): Item[] {
         }
 
         normalizeResults();
-    }, [searchTerm, allItems]); // Dependensi: searchTerm dan allItems
+    }, [normalizedSearchTerm, allItems]); // Dependensi: searchTerm dan allItems
 
     return searchResults;
 }
