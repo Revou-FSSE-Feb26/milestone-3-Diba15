@@ -23,8 +23,9 @@ export const getProductById = async (id: number): Promise<Item> => {
         throw new Error("API_URL is not defined in the environment variables.");
     }
     try {
-        const response = await axios.get(`${API_URL}/products/`, { params: { id } });
-        return response.data[0]; // Assuming the API returns an array of products, we take the first one
+        const response = await axios.get(`${API_URL}/products/${id}`);
+
+        return response.data; // Return the product data directly if it's not an array
     } catch (error) {
         console.error("Error fetching product by ID:", error);
         throw error;

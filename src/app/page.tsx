@@ -6,17 +6,21 @@ import ActionButton from "@/components/home/ActionButton";
 import Link from "next/link";
 import {getProducts} from "@/api";
 import { useEffect, useState } from "react";
+import Loading from "@/components/ui/Loading";
 
 export default function Home() {
     const [itemsData, setItemsData] = useState<Item[]>([]);
-
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchProducts = async () => {
             try {
+                setLoading(true);
                 const products = await getProducts();
                 setItemsData(products);
             } catch (error) {
                 console.error("Error fetching products:", error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchProducts();
@@ -40,8 +44,10 @@ export default function Home() {
                 ))}
             </div>
 
+            {loading && <Loading status={loading} />}
+
             {/* Validasi jika produk di kategori tersebut kosong */}
-            {itemsData.length === 0 && (
+            {itemsData.length === 0 && !loading && (
                 <div className="text-center text-gray-500 py-10">
                     No products found in this category.
                 </div>
