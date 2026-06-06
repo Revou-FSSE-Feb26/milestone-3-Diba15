@@ -12,6 +12,7 @@ export interface Item {
 // This type will be used to represent an item in the shopping cart, which includes all
 // the properties of an item as well as a quantity property to indicate how many of that item are in the cart.
 export interface CartItem extends Item {
+    productId: number,
     quantity: number,
 }
 
@@ -23,7 +24,7 @@ export interface CartContextType {
     decreaseQuantity: (itemId: number) => void,
     removeFromCart: (itemId: number) => void,
     updateQuantity: (itemId: number, quantity: number) => void,
-    clearCart: () => void,
+    clearCart: (item: Item[]) => void,
     triggerToast: (message: string, type: 'success' | 'error' | 'warning') => void;
     clearToast: () => void;
     triggerModal: (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => void;

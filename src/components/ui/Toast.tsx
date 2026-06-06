@@ -1,7 +1,12 @@
 import { useCart } from "@/context/CartContext";
 import { useEffect, useState } from "react";
 
-export default function Toast({ message, type }: { message: string; type: 'success' | 'error' | 'warning'; }) {
+interface ToastProps {
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'promise';
+}
+
+export default function Toast({ message, type }: ToastProps) {
     const { clearToast } = useCart();
     const [isAnimate, setIsAnimate] = useState(false);
 
@@ -34,8 +39,25 @@ export default function Toast({ message, type }: { message: string; type: 'succe
                 return 'bg-red-500';
             case 'warning':
                 return 'bg-yellow-500';
+            case 'promise':
+                return 'bg-gray-500'
             default:
                 return 'bg-gray-500';
+        }
+    };
+
+    const iconType = () => {
+        switch (type) {
+            case 'success':
+                return 'fa-solid fa-check';
+            case 'error':
+                return 'fa-solid fa-times';
+            case 'warning':
+                return 'fa-solid fa-exclamation';
+            case 'promise':
+                return 'fa-solid fa-spinner';
+            default:
+                return 'fa-solid fa-info';
         }
     };
 
@@ -45,6 +67,7 @@ export default function Toast({ message, type }: { message: string; type: 'succe
             transition-all duration-300 ease-in-out transform
             ${isAnimate ? "translate-x-0 opacity-100" : "translate-x-12 opacity-0"}`}
         >
+            <i className={`${iconType} mr-2`}></i>
             <span>{message}</span>
             <i className="fas fa-times ml-4 cursor-pointer hover:opacity-70 transition-opacity" onClick={handleClose}></i>
         </div>

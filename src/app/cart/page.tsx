@@ -30,7 +30,7 @@ export default function CartPage() {
     };
 
     const checkOut = () => {
-        clearCart();
+        clearCart(cart);
         triggerModal(`Successfull Checkout ${totalCartItems(cart)} items with total price ${cartTotalPrice(cart)} `, "alert");
     }
 

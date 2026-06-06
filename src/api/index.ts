@@ -73,19 +73,19 @@ export const getCartItems = async (): Promise<CartItem[]> => {
     }
 }
 
-export const addToCart = async (item: Item): Promise<void> => {
+export const addCart = async (item: Item): Promise<void> => {
     if (!API_URL) {
         throw new Error("API_URL is not defined in the environment variables.");
     }
     try {
-        await axios.post(`${API_URL}/cart`, { ...item, quantity: 1 });
+        await axios.post(`${API_URL}/cart`, { productId: item.id, quantity: 1 });
     } catch (error) {
         console.error("Error adding item to cart:", error);
         throw error;
     }
 }
 
-export const updateCartItem = async (itemId: number, quantity: number): Promise<void> => {
+export const updateCart = async (itemId: number, quantity: number): Promise<void> => {
     if (!API_URL) {
         throw new Error("API_URL is not defined in the environment variables.");
     }
@@ -97,7 +97,7 @@ export const updateCartItem = async (itemId: number, quantity: number): Promise<
     }
 }
 
-export const removeFromCart = async (itemId: number): Promise<void> => {
+export const deleteCart = async (itemId: number): Promise<void> => {
     if (!API_URL) {
         throw new Error("API_URL is not defined in the environment variables.");
     }
@@ -105,6 +105,21 @@ export const removeFromCart = async (itemId: number): Promise<void> => {
         await axios.delete(`${API_URL}/cart/${itemId}`);
     } catch (error) {
         console.error("Error removing item from cart:", error);
+        throw error;
+    }
+}
+
+
+export const clear = async (item: Item[]): Promise<void> => {
+    if (!API_URL) {
+        throw new Error("API_URL is not defined in the environment variables.");
+    }
+    try {
+        item.forEach(async (item) => {
+            await axios.delete(`${API_URL}/cart/${item.id}`);
+        })
+    } catch (error) {
+        console.error("Error clearing cart:", error);
         throw error;
     }
 }
