@@ -43,17 +43,21 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
     }, [params]);
 
     return (
-        <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4 self-start">Product Detail</h1>
-            <div className="flex flex-col md:flex-row gap-4">
-                <Image src={itemsData.img_url} alt={itemsData.name} width={300} height={300} className="object-cover w-auto h-auto rounded-lg" />
-                <div className={"flex flex-col gap-2 max-w-md justify-center"}>
-                    <h2 className="text-xl font-bold">{itemsData.name}</h2>
-                    <p>{itemsData.description}</p>
-                    <p>Price: ${itemsData.price}</p>
-                    <AddCartButton item={itemsData} />
+        <>
+            {itemsData && !loading && (
+                <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
+                    <h1 className="text-2xl font-bold mb-4 self-start">Product Detail</h1>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <Image src={itemsData.img_url} alt={itemsData.name} width={300} height={300} className="object-cover w-auto h-auto rounded-lg" />
+                        <div className={"flex flex-col gap-2 max-w-md justify-center"}>
+                            <h2 className="text-xl font-bold">{itemsData.name}</h2>
+                            <p>{itemsData.description}</p>
+                            <p>Price: ${itemsData.price}</p>
+                            <AddCartButton item={itemsData} />
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {loading && <Loading status={loading} />}
 
@@ -64,6 +68,6 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             )}
 
             <ActionButton />
-        </div>
+        </>
     );
 }
