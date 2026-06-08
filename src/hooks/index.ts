@@ -28,9 +28,10 @@ export function useSearch(searchTerm: string, searchTermWithCategory: string): I
                     return;
                 }
 
-                if (normalizedSearchTerm) {
-                    const results = await searchProducts(normalizedSearchTerm);
-                    setSearchResults(results);
+                if (normalizedSearchTerm === "all") {
+                    setTimeout(() => {
+                        setSearchResults(allItems);
+                    }, 0);
                     return;
                 }
 
