@@ -4,7 +4,7 @@ import Brand from "@/components/ui/Brand";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
     const { user, logout } = useCart();
@@ -27,9 +27,14 @@ export default function Navbar() {
                         <LogIn />
                     </Link>
                 ) : (
-                    <button onClick={() => handleLogout()} className="cursor-pointer">
-                        logout
-                    </button>
+                    <div className="flex gap-2">
+                        {user.role === "admin" && (
+                            <Link href="/dashboard">Dashboard</Link>
+                        )}
+                        <button onClick={() => handleLogout()} className="cursor-pointer">
+                            Logout
+                        </button>
+                    </div>
                 )
             }
         </nav>
