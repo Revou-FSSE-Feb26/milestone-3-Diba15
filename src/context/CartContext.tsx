@@ -38,9 +38,10 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
-import { Item, CartItem, CartContextType } from "@/types/Types";
+import { Item, CartItem, CartContextType, Me, LoginProps } from "@/types/Types";
 import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
+import {loginUser, logoutUser} from "@/api"
 
 // Membuat konteks untuk keranjang belanja (CartContext) dengan tipe CartContextType. 
 // Nilai awalnya adalah undefined, yang berarti bahwa konteks ini harus digunakan di dalam CartProvider.
@@ -53,6 +54,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
  */
 export function CartProvider({ children }: { children: ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
+    const [user, setUser] = useState<Me>({ id: 0, name: "", email: "", role: "" });
     const [showToast, setShowToast] = useState(false);
     const [message, setMessage] = useState("");
     const [type, setType] = useState<"success" | "error" | "warning">("success");
@@ -147,6 +149,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, [cart]);
 
+    // useEffect untuk Fetch User
+    useEffect(() => {
+        const fetchUser = () => {
+            try {
+                const userData = localStorage.get("me")
+
+                if (userData) setUser(userData);
+                else setUser({ id: 0, name: "", email: "", role: "" });
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const login = async (data: LoginProps) => {
+        try {
+            const response = await loginUser(data);
+            setUser(response);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const logout = () => {
+        logoutUser();
+        setUser({ id: 0, name: "", email: "", role: "" });
+    }
+
     /**
      * Berfungsi untuk menambahkan item ke dalam keranjang. Jika item sudah ada di dalam keranjang, maka fungsi ini akan meningkatkan jumlah (quantity) 
      * item tersebut. Jika item belum ada, maka fungsi ini akan menambahkannya ke dalam keranjang dengan quantity awal 1.
@@ -213,7 +244,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     return (
         <CartContext.Provider value={{
-            cart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity, triggerToast, clearToast, triggerModal
+            user, 
+            cart, 
+            addToCart, 
+            removeFromCart, 
+            updateQuantity, 
+            clearCart, 
+            decreaseQuantity, 
+            triggerToast, 
+            clearToast, 
+            triggerModal,
+            login,
+            logout
         }}>
             {showToast && <Toast message={message} type={type} />}
             {modalConfig.showModal && <Modal msg={modalConfig.modalMsg} modalType={modalConfig.modalType} yesAction={modalConfig.yesAction} noAction={modalConfig.noAction}/>}

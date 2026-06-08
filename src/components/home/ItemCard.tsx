@@ -3,37 +3,11 @@
 import { Item } from "@/types/Types";
 import Image from "next/image";
 import Link from "next/link";
-import { useCart } from "@/context/CartContext";
-import CartButton from "@/components/cart/CartButton";
+import AddCartButton from "@/components/detailItem/AddCartButton";
 import { priceFormatter } from "@/utils";
 
-export default function ItemCard({ Item }: { Item: Item }) {
-    const { cart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
-
-    const cartItem = cart.find((cartItem) => cartItem.id === Item.id);
-
-    const handleAddToCart = (): void => {
-        addToCart(Item);
-        triggerToast(`${Item.name} added to cart`, "success");
-    }
-
-    const handleRemoveFromCart = (): void => {
-        if (cartItem && cartItem.quantity > 1) {
-            decreaseQuantity(Item.id);
-            triggerToast(`${Item.name} quantity decreased`, "warning");
-        } else {
-            triggerModal(
-                `Are you sure you want to remove ${Item.name} from the cart?`,
-                "confirmation",
-                () => {
-                    removeFromCart(Item.id);
-                    triggerToast(`${Item.name} removed from cart`, "error");
-                }
-            );
-        }
-    }
-
-    const { id, name, price, img_url, category }: Item = Item;
+export default function ItemCard({ item }: { item: Item }) {
+    const { id, name, price, img_url, category }: Item = item;
 
     return (
         <div className={"bg-white rounded-lg shadow-md p-4 flex flex-col items-center justify-between gap-2"}>
@@ -56,7 +30,7 @@ export default function ItemCard({ Item }: { Item: Item }) {
                     <p className={"text-lg md:text-xl font-bold"}>{priceFormatter(Number(price))}</p>
                 </div>
             </Link>
-            <CartButton handleAddToCart={handleAddToCart} handleRemoveFromCart={handleRemoveFromCart} itemCount={cartItem ? cartItem.quantity : 0} />
+            <AddCartButton item={item} />
         </div>
     );
 }

@@ -15,12 +15,10 @@ export default function CartPage() {
             decreaseQuantity(item.id);
             triggerToast(`${item.name} quantity decreased`, "warning");
         } else {
-            // removeFromCart(item.id);
             triggerModal(`Are you sure you want to remove ${item.name} from the cart?`, "confirmation", () => {
                 removeFromCart(item.id);
                 triggerToast(`${item.name} removed from cart`, "error");
-            }, () => { });
-            // triggerToast(`${item.name} removed from cart`, "error");
+            }, () => { })
         }
     };
 

@@ -18,6 +18,7 @@ export interface CartItem extends Item {
 // This type will be used to represent the shopping cart,
 // which contains an array of CartItem objects and a total price for the items in the cart.
 export interface CartContextType {
+    user: Me,
     cart: CartItem[],
     addToCart: (item: Item) => void,
     decreaseQuantity: (itemId: number) => void,
@@ -27,6 +28,8 @@ export interface CartContextType {
     triggerToast: (message: string, type: 'success' | 'error' | 'warning') => void;
     clearToast: () => void;
     triggerModal: (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => void;
+    login: (data: LoginProps) => void,
+    logout: () => void,
 }
 
 export const categories: string[] = [

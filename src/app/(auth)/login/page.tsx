@@ -4,7 +4,6 @@ import Input from "@/components/ui/form/Input"
 import Link from "next/link";
 import { LoginProps } from "@/types/Types";
 import { useForm } from "react-hook-form";
-import { loginUser } from "@/api";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 
@@ -15,12 +14,12 @@ export default function Login() {
             password: "",
         }
     });
-    const { triggerToast } = useCart();
+    const { triggerToast, login } = useCart();
     const router = useRouter();
 
     const onSubmit = async (data: LoginProps) => {
         try {
-            await loginUser(data);
+            await login(data);
             triggerToast("Register Success", "success");
         } catch (error) {
             console.error("Error registering user:", error);
