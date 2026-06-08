@@ -10,7 +10,6 @@ export default function AddCartButton({ item }: { item: Item }) {
 
     const handleAddToCart = (): void => {
         addToCart(item);
-        triggerToast(`${item.name} added to cart`, "success");
     }
 
     const handleRemoveFromCart = (): void => {

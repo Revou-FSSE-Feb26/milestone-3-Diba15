@@ -23,7 +23,7 @@ export interface CartContextType {
     decreaseQuantity: (itemId: number) => void,
     removeFromCart: (itemId: number) => void,
     updateQuantity: (itemId: number, quantity: number) => void,
-    clearCart: () => void,
+    clearCart: (item: Item[]) => void,
     triggerToast: (message: string, type: 'success' | 'error' | 'warning') => void;
     clearToast: () => void;
     triggerModal: (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => void;
