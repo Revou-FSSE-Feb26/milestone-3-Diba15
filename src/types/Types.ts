@@ -12,7 +12,6 @@ export interface Item {
 // This type will be used to represent an item in the shopping cart, which includes all
 // the properties of an item as well as a quantity property to indicate how many of that item are in the cart.
 export interface CartItem extends Item {
-    productId: number,
     quantity: number,
 }
 
