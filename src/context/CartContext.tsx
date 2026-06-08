@@ -41,7 +41,8 @@ import { createContext, useContext, useState, useEffect, ReactNode, useRef } fro
 import { Item, CartItem, CartContextType, Me, LoginProps } from "@/types/Types";
 import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
-import {loginUser, logoutUser} from "@/api"
+import { loginUser, logoutUser } from "@/api/auth";
+import axios from "axios";
 
 // Membuat konteks untuk keranjang belanja (CartContext) dengan tipe CartContextType. 
 // Nilai awalnya adalah undefined, yang berarti bahwa konteks ini harus digunakan di dalam CartProvider.
@@ -63,8 +64,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         showModal: false,
         modalMsg: '',
         modalType: 'alert' as 'confirmation' | 'alert',
-        yesAction: () => {},
-        noAction: () => {},
+        yesAction: () => { },
+        noAction: () => { },
     })
 
     /** 
@@ -102,18 +103,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
             modalMsg: msg,
             modalType: modalType,
             yesAction: (() => {
-                if(yesAction) yesAction();
+                if (yesAction) yesAction();
                 clearModal();
             }),
             noAction: (() => {
-                if(noAction) noAction();
+                if (noAction) noAction();
                 clearModal();
             })
         });
     };
 
     const clearModal = () => {
-        setModalConfig((prev) => ({...prev, showModal: false}));
+        setModalConfig((prev) => ({ ...prev, showModal: false }));
     };
 
     /**
@@ -153,9 +154,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const fetchUser = () => {
             try {
-                const userData = localStorage.get("me")
+                const userData = localStorage.getItem("me")
 
-                if (userData) setUser(userData);
+                if (userData) setUser(JSON.parse(userData));
                 else setUser({ id: 0, name: "", email: "", role: "" });
             } catch (error) {
                 console.log(error);
@@ -167,16 +168,53 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const login = async (data: LoginProps) => {
         try {
             const response = await loginUser(data);
-            setUser(response);
+
+            if (response.success && response.user) {
+                const loggedInUser = response.user;
+
+                // 2. Set user state di client
+                setUser({
+                    id: loggedInUser.id,
+                    name: loggedInUser.name,
+                    email: loggedInUser.email,
+                    role: loggedInUser.role
+                });
+
+                // 3. Pasang token akses ke Axios untuk request client-side berikutnya
+                axios.defaults.headers.common["Authorization"] = `Bearer ${loggedInUser.accessToken}`;
+
+                // 4. Simpan info dasar user ke localStorage (tanpa token sensitif agar lebih aman)
+                localStorage.setItem("me", JSON.stringify({
+                    id: loggedInUser.id,
+                    name: loggedInUser.name,
+                    email: loggedInUser.email,
+                    role: loggedInUser.role
+                }));
+
+                return { success: true };
+            }
         } catch (error) {
             console.log(error);
         }
     }
 
-    const logout = () => {
-        logoutUser();
-        setUser({ id: 0, name: "", email: "", role: "" });
-    }
+    const logout = async () => {
+        try {
+            // 1. Panggil Server Action untuk menghapus cookies di sisi server
+            await logoutUser();
+
+            // 2. Bersihkan state user di client
+            setUser({ id: 0, name: "", email: "", role: "" });
+
+            // 3. Hapus data dari localStorage browser
+            localStorage.removeItem("me");
+
+            // 4. Hapus header otorisasi Axios
+            delete axios.defaults.headers.common["Authorization"];
+        } catch (error) {
+            console.error("Logout Context Error:", error);
+        }
+    };
 
     /**
      * Berfungsi untuk menambahkan item ke dalam keranjang. Jika item sudah ada di dalam keranjang, maka fungsi ini akan meningkatkan jumlah (quantity) 
@@ -244,21 +282,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     return (
         <CartContext.Provider value={{
-            user, 
-            cart, 
-            addToCart, 
-            removeFromCart, 
-            updateQuantity, 
-            clearCart, 
-            decreaseQuantity, 
-            triggerToast, 
-            clearToast, 
+            user,
+            cart,
+            addToCart,
+            removeFromCart,
+            updateQuantity,
+            clearCart,
+            decreaseQuantity,
+            triggerToast,
+            clearToast,
             triggerModal,
             login,
             logout
         }}>
             {showToast && <Toast message={message} type={type} />}
-            {modalConfig.showModal && <Modal msg={modalConfig.modalMsg} modalType={modalConfig.modalType} yesAction={modalConfig.yesAction} noAction={modalConfig.noAction}/>}
+            {modalConfig.showModal && <Modal msg={modalConfig.modalMsg} modalType={modalConfig.modalType} yesAction={modalConfig.yesAction} noAction={modalConfig.noAction} />}
             {children}
         </CartContext.Provider>
     );

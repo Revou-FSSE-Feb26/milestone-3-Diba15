@@ -1,7 +1,5 @@
 import axios from "axios";
-import { Item, Me, LoginProps, RegisterUser } from "@/types/Types";
-import bcrypt from "bcryptjs";
-import { NextResponse } from "next/server";
+import { Item, Me} from "@/types/Types";
 
 const API_URL: string | undefined = process.env.NEXT_PUBLIC_API_URL;
 
@@ -74,68 +72,3 @@ export const getUserById = async (id: number): Promise<Me> => {
         throw error;
     }
 }
-
-export const registerUser = async (user: RegisterUser) => {
-    if (!API_URL) {
-        throw new Error("API_URL is not defined in the environment variables.");
-    }
-    try {
-        const { password, confirmPassword } = user;
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        if (password !== confirmPassword) {
-            throw new Error("Passwords do not match.");
-        }
-
-        user = { name: user.name, email: user.email, password: hashedPassword, role: "user" };
-
-        const response = await axios.post(`${API_URL}/users`, user);
-        return response.data;
-    } catch (error) {
-        console.error("Error registering user:", error);
-        throw error;
-    }
-};
-
-// 
-export const loginUser = async (user: LoginProps) => {
-    if (!API_URL) {
-        throw new Error("API_URL is not defined in the environment variables.");
-    }
-    try {
-        const { email, password } = user;
-
-        const response = await axios.get(`${API_URL}/users`);
-        const usersData = response.data;
-
-        const users = usersData.find((user: LoginProps) => user.email === email);
-
-        if (!users) {
-            throw new Error("User not found");
-        }
-
-        const matchPassword = await bcrypt.compare(password, users.password);
-        if (!matchPassword) {
-            throw new Error("Password does not match");
-        }
-
-        const me: Me = {
-            id: users.id,
-            name: users.name,
-            email: users.email,
-            role: users.role
-        };
-
-        localStorage.setItem("me", JSON.stringify(me));
-
-        return response.data;
-    } catch (error) {
-        console.error("Error logging in user:", error);
-        throw error;
-    }
-};
-
-export const logoutUser = () => {
-    localStorage.removeItem("me");
-};

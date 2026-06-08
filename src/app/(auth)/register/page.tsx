@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Input from "@/components/ui/form/Input";
 import { useForm, useWatch } from "react-hook-form";
-import { registerUser } from "@/api";
+import { registerUser } from "@/api/auth";
 import { RegisterUser } from "@/types/Types";
 import { useCart } from "@/context/CartContext";
 import {useRouter} from "next/navigation";
