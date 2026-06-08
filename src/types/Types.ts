@@ -39,3 +39,26 @@ export const categories: string[] = [
 
 // This type will be used to ensure that the category of an item is one of the predefined categories in the categories array.
 export type Category = typeof categories[number];
+
+
+// User Types
+
+export interface Me {
+    id: number,
+    name: string,
+    email: string,
+    role: string
+}
+
+export interface LoginProps {
+    email: string,
+    password: string,
+}
+
+export interface RegisterUser {
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword?: string,
+    role? : "user" | "admin"
+}

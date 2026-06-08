@@ -3,39 +3,13 @@
 import Link from "next/link";
 import Input from "@/components/ui/form/Input";
 import { useForm, useWatch } from "react-hook-form";
-
-const inputPropsArray = [
-    {
-        placeholder: "Name",
-        label: "Name",
-        type: "text"
-    },
-    {
-        placeholder: "Email",
-        label: "Email",
-        type: "email"
-    },
-    {
-        placeholder: "Password",
-        label: "Password",
-        type: "password"
-    },
-    {
-        placeholder: "Confirm Password",
-        label: "Confirm Password",
-        type: "password"
-    }
-]
-
-interface Signup {
-    name: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-}
+import { registerUser } from "@/api";
+import { RegisterUser } from "@/types/Types";
+import { useCart } from "@/context/CartContext";
+import {useRouter} from "next/navigation";
 
 export default function Register() {
-    const { control, register, handleSubmit, formState: { errors } } = useForm<Signup>({
+    const { control, register, handleSubmit, formState: { errors } } = useForm<RegisterUser>({
         defaultValues: {
             name: "",
             email: "",
@@ -43,11 +17,20 @@ export default function Register() {
             confirmPassword: ""
         }
     });
+    const { triggerToast } = useCart();
+    const router = useRouter();
 
     const password = useWatch({ control, name: "password" });
 
-    const onSubmit = (data: Signup) => {
-        console.log(data);
+    const onSubmit = async (data: RegisterUser) => {
+        try {
+            await registerUser(data);
+            triggerToast("Register Success", "success");
+        } catch (error) {
+            console.error("Error registering user:", error);
+        } finally {
+            router.push("/login");
+        }
     }
 
     return (
