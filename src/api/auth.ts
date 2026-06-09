@@ -35,9 +35,15 @@ export const registerUser = async (user: RegisterUser) => {
 
         const response = await axios.post(`${API_URL}/users`, newUser);
         return { success: true, data: response.data };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error registering user:", error);
-        throw new Error(error.response?.data?.message || "Registration failed");
+        // Memeriksa apakah error ini adalah error dari Axios
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.message || "Registration failed");
+        }
+
+        // Antisipasi jika ada error non-Axios (misal: network error parah atau bug kode)
+        throw new Error(error instanceof Error ? error.message : "Registration failed");
     }
 };
 
@@ -56,7 +62,7 @@ export const loginUser = async (credentials: LoginProps) => {
         const response = await axios.get(`${API_URL}/users`);
         const usersData = response.data;
 
-        const matchedUser = usersData.find((u: any) => u.email === email);
+        const matchedUser = usersData.find((u: LoginProps) => u.email === email);
 
         if (!matchedUser) {
             throw new Error("User not found");
@@ -101,9 +107,15 @@ export const loginUser = async (credentials: LoginProps) => {
         };
 
         return { success: true, user: me };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error logging in user:", error);
-        throw new Error(error.message || "Login failed");
+        // Memeriksa apakah error ini adalah error dari Axios
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.message || "Login failed");
+        }
+
+        // Antisipasi jika ada error non-Axios (misal: network error parah atau bug kode)
+        throw new Error(error instanceof Error ? error.message : "Login failed");
     }
 };
 
