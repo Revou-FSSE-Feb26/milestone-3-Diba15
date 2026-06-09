@@ -5,10 +5,11 @@ import CartButton from "@/components/cart/CartButton";
 import { useRouter } from "next/navigation";
 
 export default function AddCartButton({ item }: { item: Item }) {
-    const { user, cart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+    const { user, getCart, getCartQuantity, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
     const router = useRouter();
-
-    const cartItem = cart.find((cartItem) => cartItem.id === item.id);
+    
+    const cartItem = getCart(user.id);
+    const quantity = getCartQuantity(user.id);
 
     const handleAddToCart = (): void => {
         if (user.id === 0) {
@@ -27,22 +28,22 @@ export default function AddCartButton({ item }: { item: Item }) {
             return;
         }
 
-        if (cartItem && cartItem.quantity > 1) {
+        if (cartItem && quantity > 1) {
             decreaseQuantity(item.id);
-            triggerToast(`${item.name} quantity decreased`, "warning");
+            triggerToast(`${item.title} quantity decreased`, "warning");
         } else {
             triggerModal(
-                `Are you sure you want to remove ${item.name} from the cart?`,
+                `Are you sure you want to remove ${item.title} from the cart?`,
                 "confirmation",
                 () => {
                     removeFromCart(item.id);
-                    triggerToast(`${item.name} removed from cart`, "error");
+                    triggerToast(`${item.title} removed from cart`, "error");
                 }
             );
         }
     }
 
     return (
-        <CartButton handleAddToCart={() => handleAddToCart()} handleRemoveFromCart={() => handleRemoveFromCart()} itemCount={cartItem ? cartItem.quantity : 0} />
+        <CartButton handleAddToCart={() => handleAddToCart()} handleRemoveFromCart={() => handleRemoveFromCart()} itemCount={quantity} />
     );
 }

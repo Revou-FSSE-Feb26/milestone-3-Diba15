@@ -13,22 +13,22 @@ export default function CartPage() {
     const decreaseItem = (item: CartItem) => {
         if (item.quantity > 1) {
             decreaseQuantity(item.id);
-            triggerToast(`${item.name} quantity decreased`, "warning");
+            triggerToast(`${item.title} quantity decreased`, "warning");
         } else {
-            triggerModal(`Are you sure you want to remove ${item.name} from the cart?`, "confirmation", () => {
+            triggerModal(`Are you sure you want to remove ${item.title} from the cart?`, "confirmation", () => {
                 removeFromCart(item.id);
-                triggerToast(`${item.name} removed from cart`, "error");
+                triggerToast(`${item.title} removed from cart`, "error");
             }, () => { })
         }
     };
 
     const handleAddToCart = (item: CartItem) => {
         addToCart(item);
-        triggerToast(`${item.name} added to cart`, "success");
+        triggerToast(`${item.title} added to cart`, "success");
     };
 
     const checkOut = () => {
-        clearCart(cart);
+        clearCart();
         triggerModal(`Successfull Checkout ${totalCartItems(cart)} items with total price ${cartTotalPrice(cart)} `, "alert");
     }
 

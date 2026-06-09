@@ -10,6 +10,8 @@ export default function Navbar() {
     const { user, logout } = useCart();
     const router = useRouter();
 
+    console.log(user.role);
+
     const handleLogout = () => {
         logout();
         router.push("/login");

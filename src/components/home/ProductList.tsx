@@ -2,9 +2,9 @@
 
 import ItemCard from "@/components/home/ItemCard";
 import Loading from "@/components/ui/Loading";
-import { categories, Item } from "@/types/Types";
+import { Item } from "@/types/Types"; // Hapus import 'categories' karena kita akan membuatnya dinamis
 import { useMemo, useState, useEffect } from "react";
-import {getProducts} from "@/api"
+import { getProducts } from "@/api/index"; // Pastikan path ini sesuai
 
 export default function ProductList() {
     const [itemsData, setItemsData] = useState<Item[]>([]);
@@ -27,16 +27,26 @@ export default function ProductList() {
         getAllProducts();
     }, []);
 
+    // Membuat daftar kategori secara dinamis dari data produk yang di-fetch
+    const dynamicCategories = useMemo(() => {
+        // Mengambil nama kategori yang unik menggunakan Set
+        const uniqueCats = new Set(itemsData.map(item => item.category.name));
+        return ["All", ...Array.from(uniqueCats)];
+    }, [itemsData]);
+
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
     const filteredItems = useMemo(
         () =>
             itemsData.filter((item) => {
                 const matchesCategory =
                     selectedCategory === "All" ||
-                    item.category.toLowerCase() === selectedCategory.toLowerCase();
+                    item.category.name.toLowerCase() === selectedCategory.toLowerCase(); // Sesuaikan dengan Platzi (item.category.name)
+
                 const matchesName =
                     normalizedSearchTerm === "" ||
-                    item.name.toLowerCase().includes(normalizedSearchTerm);
+                    item.title.toLowerCase().includes(normalizedSearchTerm); // Sesuaikan dengan Platzi (item.title bukan item.name)
+
                 return matchesCategory && matchesName;
             }),
         [itemsData, normalizedSearchTerm, selectedCategory]
@@ -74,7 +84,7 @@ export default function ProductList() {
                                     onChange={(event) => setSelectedCategory(event.target.value)}
                                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                                 >
-                                    {categories.map((category) => (
+                                    {dynamicCategories.map((category) => (
                                         <option key={category} value={category}>
                                             {category}
                                         </option>
