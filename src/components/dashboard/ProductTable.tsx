@@ -13,7 +13,8 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
     // State untuk Pagination
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(5)
-    // --- LOGIKA PAGINATION ---
+    
+    // Menghitung jumlah halaman
     const totalPages = Math.ceil(products.length / itemsPerPage)
 
     // Memotong array produk agar hanya menampilkan data di halaman aktif
@@ -28,9 +29,10 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
         setCurrentPage(pageNumber)
     }
 
-    // Informasi teks entry data, misal: "Showing 1 to 5 of 12 entries"
+    // Informasi teks entry data
     const entryStart = products.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
     const entryEnd = Math.min(currentPage * itemsPerPage, products.length)
+
     return (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

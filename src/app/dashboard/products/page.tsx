@@ -48,6 +48,13 @@ export default function DashboardProducts() {
         }
     })
 
+    /**
+     * Reset form
+     * Set editingId null
+     * Reset nilai form
+     * 
+     * @returns void
+     */
     const resetForm = () => {
         setEditingId(null)
         reset({
@@ -58,6 +65,13 @@ export default function DashboardProducts() {
         })
     }
 
+    /**
+     * Submit form
+     * Jika ada editingId, maka update product
+     * Jika tidak ada editingId, maka tambahkan product
+     * 
+     * @param data 
+     */
     const onSubmit = async (data: ProductFormValues) => {
         const parsedImages = data.images
             .split(",")
@@ -97,6 +111,13 @@ export default function DashboardProducts() {
         }
     }
 
+    /**
+     * Handle edit product
+     * Set editingId dengan id produk yang akan diedit
+     * Set nilai form dengan data produk yang akan diedit
+     * 
+     * @param product 
+     */
     const handleEdit = (product: Item) => {
         setEditingId(product.id)
         setValue("images", product.images.join(", "))
@@ -105,6 +126,14 @@ export default function DashboardProducts() {
         setValue("description", product.description)
     }
 
+    /**
+     * Handle delete product
+     * Konfirmasi terlebih dahulu
+     * Hapus produk
+     * Fetch ulang produk setelah perubahan
+     * 
+     * @param id 
+     */
     const handleDelete = async (id: number) => {
         if (!confirm("Apakah Anda yakin ingin menghapus produk ini?")) return;
 
