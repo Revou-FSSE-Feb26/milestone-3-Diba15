@@ -8,7 +8,7 @@ import { getProductById, getProducts } from "@/api/index";
 export async function generateStaticParams() {
     try {
         const products = await getProducts();
-        
+
         // Next.js mengharapkan nilai parameter berupa string
         return products.map((product) => ({
             id: product.id.toString(),
@@ -36,7 +36,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
     // Jika produk tidak ditemukan, tampilkan pesan fallback tanpa merusak halaman
     if (!itemsData) {
         return (
-            <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto min-h-[400px]">
+            <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto min-h-100">
                 <div className="text-center text-gray-500 py-10">
                     Detail produk tidak ditemukan.
                 </div>
@@ -45,8 +45,8 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
         );
     }
 
-    const productImage = itemsData.images && itemsData.images.length > 0 
-        ? itemsData.images[0] 
+    const productImage = itemsData.images && itemsData.images.length > 0
+        ? itemsData.images[0]
         : "https://picsum.photos/800";
 
     return (
@@ -54,12 +54,12 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
             <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
                 <h1 className="text-2xl font-bold mb-4 self-start">Product Detail</h1>
                 <div className="flex flex-col md:flex-row gap-6 items-center">
-                    <div className="relative w-[300px] h-[300px] flex-shrink-0">
-                        <Image 
-                            src={productImage} 
-                            alt={itemsData.title} 
-                            width={300} 
-                            height={300} 
+                    <div className="relative w-75 h-75 shrink-0">
+                        <Image
+                            src={productImage}
+                            alt={itemsData.title}
+                            width={300}
+                            height={300}
                             className="object-cover rounded-lg w-full h-full"
                             priority
                         />
@@ -71,9 +71,9 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
                         <h2 className="text-xl font-bold text-gray-800">{itemsData.title}</h2>
                         <p className="text-gray-600 text-sm leading-relaxed">{itemsData.description}</p>
                         <p className="text-lg font-extrabold text-gray-900">Price: ${itemsData.price}</p>
-                        
+
                         {/* Komponen AddCartButton tetap dapat mempertahankan state "use client" di dalamnya.
-                          Kita cukup mengirimkan data statis `itemsData` yang sudah siap pakai sebagai props.
+                        Kita cukup mengirimkan data statis `itemsData` yang sudah siap pakai sebagai props.
                         */}
                         <AddCartButton item={itemsData} />
                     </div>
