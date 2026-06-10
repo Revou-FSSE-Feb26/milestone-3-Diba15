@@ -2,40 +2,74 @@
 
 import ItemCard from "@/components/home/ItemCard";
 import Loading from "@/components/ui/Loading";
-import { Item } from "@/types/Types"; // Hapus import 'categories' karena kita akan membuatnya dinamis
+import { Item } from "@/types/Types";
 import { useMemo, useState, useEffect } from "react";
-import { getProducts } from "@/api/index"; // Pastikan path ini sesuai
+import { getProductsWithPagination } from "@/api/index";
 
 export default function ProductList() {
+    const LIMIT_PER_PAGE = 8;
+
     const [itemsData, setItemsData] = useState<Item[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [loading, setLoading] = useState(true);
+    
+    // State tambahan untuk Load More
+    const [offset, setOffset] = useState(0);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
+    // Fetch data pertama kali (Page 1)
     useEffect(() => {
-        const getAllProducts = async () => {
+        const getInitialProducts = async () => {
             try {
                 setLoading(true);
-                const products = await getProducts();
+                const products = await getProductsWithPagination(0, LIMIT_PER_PAGE);
+                
                 setItemsData(products);
+                setOffset(products.length);
+                
+                // Jika produk yang kembali kurang dari LIMIT, berarti data di backend sudah habis
+                if (products.length < LIMIT_PER_PAGE) {
+                    setHasMore(false);
+                }
             } catch (error) {
                 console.error("Error fetching products:", error);
             } finally {
                 setLoading(false);
             }
-        }
-        getAllProducts();
+        };
+        getInitialProducts();
     }, []);
 
-    // Membuat daftar kategori secara dinamis dari data produk yang di-fetch
-    // Menggunakan useMemo untuk menghindari pembuatan ulang daftar kategori
-    // Ketika data produk berubah, daftar kategori akan diperbarui
-    // Ketika selectedCategory berubah, daftar kategori akan diperbarui
+    // Fungsi untuk memuat data halaman berikutnya
+    const handleLoadMore = async () => {
+        if (loadingMore || !hasMore) return;
+
+        try {
+            setLoadingMore(true);
+            const newProducts = await getProductsWithPagination(offset, LIMIT_PER_PAGE);
+
+            if (newProducts.length === 0) {
+                setHasMore(false);
+            } else {
+                // Menggabungkan produk lama dengan produk yang baru di-fetch
+                setItemsData((prevItems) => [...prevItems, ...newProducts]);
+                setOffset((prevOffset) => prevOffset + newProducts.length);
+                // Jika data yang didapat kurang dari LIMIT, tandanya sudah halaman terakhir
+                if (newProducts.length < LIMIT_PER_PAGE) {
+                    setHasMore(false);
+                }
+            }
+        } catch (error) {
+            console.error("Error loading more products:", error);
+        } finally {
+            setLoadingMore(false);
+        }
+    };
+
+    // Membuat daftar kategori secara dinamis
     const dynamicCategories = useMemo(() => {
-        // Mengambil nama kategori yang unik menggunakan Set
-        // Kenapa menggunakan Set?
-        // Karena Set adalah struktur data yang memungkinkan kita untuk menyimpan nilai unik secara otomatis.
-        // Dengan Set, kita dapat memastikan bahwa hanya ada satu nilai untuk setiap kategori.
         const uniqueCats = new Set(itemsData.map(item => item.category.name));
         return ["All", ...Array.from(uniqueCats)];
     }, [itemsData]);
@@ -65,6 +99,7 @@ export default function ProductList() {
                     <Loading status={loading} />
                 ) : (
                     <div>
+                        {/* Filter & Search Bar */}
                         <div className="mb-6 grid gap-4 md:grid-cols-[1fr_220px] items-end">
                             <div>
                                 <label htmlFor="home-search-name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -99,17 +134,33 @@ export default function ProductList() {
                             </div>
                         </div>
 
+                        {/* Product Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
                             {filteredItems.map((item) => (
                                 <ItemCard key={item.id} item={item} />
                             ))}
                         </div>
 
+                        {/* Empty State */}
                         {filteredItems.length === 0 && (
                             <div className="text-center text-gray-500 py-10">
                                 No products found for the selected search and category.
                             </div>
                         )}
+
+                        {/* --- TOMBOL LOAD MORE --- */}
+                        {hasMore && filteredItems.length > 0 && (
+                            <div className="mt-8 flex justify-center">
+                                <button
+                                    onClick={handleLoadMore}
+                                    disabled={loadingMore}
+                                    className="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-accent/90 disabled:bg-gray-400"
+                                >
+                                    {loadingMore ? "Loading more..." : "Load More"}
+                                </button>
+                            </div>
+                        )}
+                        {/* ------------------------ */}
                     </div>
                 )
             }

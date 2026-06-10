@@ -16,6 +16,23 @@ export const getProducts = async (): Promise<Item[]> => {
     }
 }
 
+export const getProductsWithPagination = async (offset: number = 0, limit: number = 8): Promise<Item[]> => {
+    if (!API_URL) throw new Error("API_URL is not defined.");
+    try {
+
+        const params = {
+            offset: offset,
+            limit: limit
+        }
+
+        const response = await axios.get(`${API_URL}/products`, { params });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching products with pagination:", error);
+        throw error;
+    }
+}
+
 export const getProductById = async (id: number): Promise<Item> => {
     if (!API_URL) throw new Error("API_URL is not defined.");
     try {
