@@ -8,6 +8,7 @@ import { getProducts, postProducts, updateProduct, deleteProduct } from "@/api";
 import ProductTable from "@/components/dashboard/ProductTable";
 import Input from "@/components/ui/form/Input";
 import TextArea from "@/components/ui/form/TextArea";
+import { useCart } from "@/context/CartContext";
 
 interface ProductFormValues {
     images: string;
@@ -19,6 +20,7 @@ interface ProductFormValues {
 export default function DashboardProducts() {
     const [products, setProducts] = useState<Item[]>([])
     const [editingId, setEditingId] = useState<number | null>(null)
+    const { triggerToast, triggerModal } = useCart();
 
     const fetchProducts = async () => {
         const productData = await getProducts();
@@ -89,6 +91,7 @@ export default function DashboardProducts() {
                 // Kenapa menggunakan 2 as unknown dan Item?
                 // Karena kita tidak tahu apakah data yang dikirimkan adalah Item atau tidak.
                 await updateProduct(editingId, updatedPayload as unknown as Item);
+                triggerToast("Product updated successfully", "success");
             } else {
                 const newPayload = {
                     title: data.title,
@@ -99,6 +102,7 @@ export default function DashboardProducts() {
                 };
 
                 await postProducts(newPayload as unknown as Item);
+                triggerToast("Product added successfully", "success");
             }
 
             // Fetch ulang produk setelah perubahan
@@ -134,11 +138,16 @@ export default function DashboardProducts() {
      * @param id 
      */
     const handleDelete = async (id: number) => {
-        if (!confirm("Apakah Anda yakin ingin menghapus produk ini?")) return;
 
         try {
-            await deleteProduct(id);
-            await fetchProducts();
+            triggerModal(
+                `Are you sure you want to delete this product?`,
+                "confirmation",
+                async () => {
+                    await deleteProduct(id);
+                    await fetchProducts();
+                    triggerToast("Product deleted successfully", "success");
+                })
 
             if (editingId === id) resetForm()
         } catch (error) {
@@ -194,7 +203,7 @@ export default function DashboardProducts() {
                                 {errors.price && <p className="text-accent text-xs mt-0.5">{errors.price.message}</p>}
                             </div>
                         </div>
-                        
+
                         {/* Input Images  */}
                         <div className="grid gap-5 md:grid-cols-2">
                             <div className="flex flex-col gap-1.5">
