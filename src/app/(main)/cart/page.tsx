@@ -6,7 +6,9 @@ import { CartItem } from "@/types/Types";
 import { cartTotalPrice, totalCartItems } from "@/utils";
 
 export default function CartPage() {
-    const { cart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+    const { getCart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+
+    const cart = getCart();
 
     // Fungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
     // jika tidak maka item akan dihapus dari keranjang

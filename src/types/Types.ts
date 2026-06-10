@@ -14,7 +14,7 @@ export interface Item {
     images: string[]; // Platzi menggunakan array of strings
     category: PlatziCategory; // Platzi menggunakan object category
     // Platzi tidak memiliki properti 'stock' bawaan, tapi kita bisa berikan opsi optional jika tetap butuh di UI
-    stock?: number; 
+    stock?: number;
 }
 
 // This type will be used to represent an item in the shopping cart
@@ -27,9 +27,10 @@ export interface CartItem extends Item {
 export interface CartContextType {
     user: Me;
     cart: CartItem[];
-    getCart: (userId: number) => CartItem[];
-    getCartWithId: (id: number, userId: number) => CartItem | undefined;
-    getCartQuantity: (userId: number) => number;
+    getCart: () => CartItem[];
+    getCartWithId: (id: number) => CartItem | undefined;
+    getCartQuantity: () => number;
+    getCartQuantityById: (id: number) => number;
     addToCart: (item: Item) => void;
     decreaseQuantity: (itemId: number) => void;
     removeFromCart: (itemId: number) => void;

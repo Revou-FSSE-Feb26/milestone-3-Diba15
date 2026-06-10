@@ -228,16 +228,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const getCartWithId = (id: number, userId: number) => {
-        return cart.find(item => item.id === id && item.userId === userId);
+    const getCartWithId = (id: number) => {
+        return cart.find(item => item.id === id && item.userId === user.id);
     }
 
-    const getCart = (userId: number) => {
-        return cart.filter(item => item.userId === userId);
+    const getCart = () => {
+        return cart.filter(item => item.userId === user.id);
     }
 
-    const getCartQuantity = (userId: number) => {
-        const item = getCart(userId);
+    const getCartQuantity = () => {
+        const item = getCart();
 
         if (!item) {
             return 0;
@@ -245,6 +245,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         const quantity = item.reduce((total, item) => total + item.quantity, 0);
         return quantity;
+    }
+
+    const getCartQuantityById = (id: number) => {
+        const item = getCartWithId(id);
+        if (!item) {
+            return 0;
+        }
+        return item.quantity;
     }
 
     /**
@@ -323,15 +331,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
      * @returns void
      */
     const clearCart = () => {
-        const newCart = cart.filter(item => item.userId === user.id);
-        setCart(newCart);
+        setCart((prevCart) => {
+            return prevCart.filter(item => item.userId !== user.id);
+        });
+        localStorage.removeItem("cart");
+        localStorage.setItem("cart", JSON.stringify(cart));
         triggerToast("Keranjang berhasil dikosongkan", "success");
     };
 
     return (
         <CartContext.Provider value={{
             user,
-            cart, getCartQuantity, getCartWithId, getCart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity,
+            cart, getCartQuantity, getCartQuantityById, getCartWithId, getCart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity,
             triggerToast, clearToast, triggerModal,
             login, logout, register
         }}>
