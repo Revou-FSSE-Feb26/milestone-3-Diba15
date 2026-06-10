@@ -3,26 +3,10 @@ import AddCartButton from "@/components/detailItem/AddCartButton";
 import CategoryPill from "@/components/ui/CategoryPill";
 import ActionButton from "@/components/home/ActionButton";
 import { Item } from "@/types/Types";
-import { getProductById, getProducts } from "@/api/index";
+import { getProductById } from "@/api/index";
 import Link from "next/link";
 import { priceFormatter } from "@/utils";
 
-// 1. generateStaticParams() memberi tahu Next.js ID mana saja yang perlu dibuat statis saat Build Time (SSG)
-export async function generateStaticParams() {
-    try {
-        const products = await getProducts();
-
-        // Next.js mengharapkan nilai parameter berupa string
-        return products.map((product) => ({
-            id: product.id.toString(),
-        }));
-    } catch (error) {
-        console.error("Gagal melakukan generateStaticParams untuk SSG:", error);
-        return []; // Kembalikan array kosong agar proses build tidak terputus jika API bermasalah
-    }
-}
-
-// 2. Halaman ini sekarang menjadi Server Component (tanpa "use client")
 export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = await params;
     const id: number = Number(resolvedParams.id);
