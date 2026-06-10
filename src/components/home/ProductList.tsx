@@ -30,6 +30,9 @@ export default function ProductList() {
     // Membuat daftar kategori secara dinamis dari data produk yang di-fetch
     const dynamicCategories = useMemo(() => {
         // Mengambil nama kategori yang unik menggunakan Set
+        // Kenapa menggunakan Set?
+        // Karena Set adalah struktur data yang memungkinkan kita untuk menyimpan nilai unik secara otomatis.
+        // Dengan Set, kita dapat memastikan bahwa hanya ada satu nilai untuk setiap kategori.
         const uniqueCats = new Set(itemsData.map(item => item.category.name));
         return ["All", ...Array.from(uniqueCats)];
     }, [itemsData]);
@@ -41,11 +44,11 @@ export default function ProductList() {
             itemsData.filter((item) => {
                 const matchesCategory =
                     selectedCategory === "All" ||
-                    item.category.name.toLowerCase() === selectedCategory.toLowerCase(); // Sesuaikan dengan Platzi (item.category.name)
+                    item.category.name.toLowerCase() === selectedCategory.toLowerCase();
 
                 const matchesName =
                     normalizedSearchTerm === "" ||
-                    item.title.toLowerCase().includes(normalizedSearchTerm); // Sesuaikan dengan Platzi (item.title bukan item.name)
+                    item.title.toLowerCase().includes(normalizedSearchTerm);
 
                 return matchesCategory && matchesName;
             }),

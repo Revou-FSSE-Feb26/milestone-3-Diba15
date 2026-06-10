@@ -236,25 +236,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return cart.filter(item => item.userId === user.id);
     }
 
-    const getCartQuantity = () => {
-        const item = getCart();
-
-        if (!item) {
-            return 0;
-        }
-
-        const quantity = item.reduce((total, item) => total + item.quantity, 0);
-        return quantity;
-    }
-
-    const getCartQuantityById = (id: number) => {
-        const item = getCartWithId(id);
-        if (!item) {
-            return 0;
-        }
-        return item.quantity;
-    }
-
     /**
      * Add To Cart
      * Fungsi untuk menambahkan item ke keranjang belanja.
@@ -342,7 +323,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return (
         <CartContext.Provider value={{
             user,
-            cart, getCartQuantity, getCartQuantityById, getCartWithId, getCart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity,
+            cart, getCartWithId, getCart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity,
             triggerToast, clearToast, triggerModal,
             login, logout, register
         }}>

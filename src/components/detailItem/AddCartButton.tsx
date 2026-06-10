@@ -5,11 +5,11 @@ import CartButton from "@/components/cart/CartButton";
 import { useRouter } from "next/navigation";
 
 export default function AddCartButton({ item }: { item: Item }) {
-    const { user, getCartWithId, getCartQuantityById, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+    const { user, getCartWithId, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
     const router = useRouter();
-    
+
     const cartItem = getCartWithId(item.id);
-    const quantity = getCartQuantityById(item.id);
+    const quantity = cartItem?.quantity ? cartItem?.quantity : 0;
 
     const handleAddToCart = (): void => {
         if (user.id === 0) {
@@ -44,6 +44,6 @@ export default function AddCartButton({ item }: { item: Item }) {
     }
 
     return (
-        <CartButton handleAddToCart={() => handleAddToCart()} handleRemoveFromCart={() => handleRemoveFromCart()} itemCount={quantity ? quantity : 0} />
+        <CartButton handleAddToCart={() => handleAddToCart()} handleRemoveFromCart={() => handleRemoveFromCart()} itemCount={quantity} />
     );
 }

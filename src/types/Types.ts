@@ -29,8 +29,6 @@ export interface CartContextType {
     cart: CartItem[];
     getCart: () => CartItem[];
     getCartWithId: (id: number) => CartItem | undefined;
-    getCartQuantity: () => number;
-    getCartQuantityById: (id: number) => number;
     addToCart: (item: Item) => void;
     decreaseQuantity: (itemId: number) => void;
     removeFromCart: (itemId: number) => void;

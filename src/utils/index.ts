@@ -1,11 +1,4 @@
-import { CartItem, Item } from "@/types/Types";
-
-export const filterItemsByCategory = (items: Item[], category: string): Item[] => {
-    if (category === "All") {
-        return items;
-    }
-    return items.filter((item) => item.category === category);
-};
+import { CartItem } from "@/types/Types";
 
 export const priceFormatter = (price: number): string => {
     return price.toLocaleString("en-US", {

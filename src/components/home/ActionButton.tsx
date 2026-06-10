@@ -2,11 +2,13 @@
 
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { totalCartItems } from "@/utils";
 
 export default function ActionButton() {
-    const { user, getCartQuantity } = useCart();
+    const { getCart } = useCart();
 
-    const totalItems = getCartQuantity(user.id);
+    const cart = getCart();
+    const totalItems = totalCartItems(cart);
 
     return (
         <Link href="/cart" className={`${totalItems > 0 ? "flex" : "hidden"} fixed bottom-4 right-4 gap-2 items-center rounded-full bg-accent p-4 text-white transition-colors cursor-pointer`}>
