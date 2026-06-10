@@ -148,7 +148,7 @@ export default function ProductList() {
                             </div>
                         )}
 
-                        {/* --- TOMBOL LOAD MORE --- */}
+                        {/* LOAD MORE BUTTON */}
                         {hasMore && filteredItems.length > 0 && (
                             <div className="mt-8 flex justify-center">
                                 <button
@@ -160,7 +160,6 @@ export default function ProductList() {
                                 </button>
                             </div>
                         )}
-                        {/* ------------------------ */}
                     </div>
                 )
             }
