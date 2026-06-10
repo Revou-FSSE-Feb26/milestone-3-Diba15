@@ -1,7 +1,8 @@
 import Image from "next/image";
 import AddCartButton from "@/components/detailItem/AddCartButton";
-import { Item } from "@/types/Types";
+import CategoryPill from "@/components/ui/CategoryPill";
 import ActionButton from "@/components/home/ActionButton";
+import { Item } from "@/types/Types";
 import { getProductById, getProducts } from "@/api/index";
 
 // 1. generateStaticParams() memberi tahu Next.js ID mana saja yang perlu dibuat statis saat Build Time (SSG)
@@ -65,9 +66,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
                         />
                     </div>
                     <div className="flex flex-col gap-3 max-w-md justify-center">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-accent bg-accent/10 px-2 py-1 rounded self-start">
-                            {itemsData.category.name}
-                        </span>
+                        <CategoryPill category={itemsData.category.name} />
                         <h2 className="text-xl font-bold text-gray-800">{itemsData.title}</h2>
                         <p className="text-gray-600 text-sm leading-relaxed">{itemsData.description}</p>
                         <p className="text-lg font-extrabold text-gray-900">Price: ${itemsData.price}</p>

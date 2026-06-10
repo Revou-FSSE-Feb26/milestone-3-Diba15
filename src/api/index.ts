@@ -27,7 +27,6 @@ export const getProductById = async (id: number): Promise<Item> => {
     }
 }
 
-// Platzi menggunakan categoryId untuk filter produk berdasarkan kategori
 export const getProductsByCategory = async (categoryId: number): Promise<Item[]> => {
     if (!API_URL) throw new Error("API_URL is not defined.");
     try {
@@ -39,7 +38,6 @@ export const getProductsByCategory = async (categoryId: number): Promise<Item[]>
     }
 }
 
-// Platzi menggunakan parameter 'title' untuk mencari nama produk
 export const searchProducts = async (searchTerm: string): Promise<Item[]> => {
     if (!API_URL) throw new Error("API_URL is not defined.");
     try {
@@ -51,7 +49,72 @@ export const searchProducts = async (searchTerm: string): Promise<Item[]> => {
     }
 }
 
+export const postProducts = async (product: Item): Promise<{success: boolean, product: Item}> => {
+    if (!API_URL) throw new Error("API_URL is not defined.");
+    try {
+        const response = await axios.post(`${API_URL}/products/`, product);
+        return {
+            success: true,
+            product: response.data
+        }
+    } catch (error) {
+        console.error("Error posting product:", error);
+        throw error;
+    }
+}
+
+export const updateProduct = async (id: number, product: Item): Promise<{ success: boolean, product: Item }> => {
+    if (!API_URL) throw new Error("API_URL is not defined.");
+    try {
+        const response = await axios.put(`${API_URL}/products/${id}`, product);
+        return {
+            success: true,
+            product: response.data
+        };
+    } catch (error) {
+        console.error("Error updating product:", error);
+        throw error;
+    }
+}
+
+export const deleteProduct = async (id: number): Promise<void> => {
+    if (!API_URL) throw new Error("API_URL is not defined.");
+    try {
+        await axios.delete(`${API_URL}/products/${id}`);
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        throw error;
+    }
+}
+
+// Categories API
+
+export const postCategories = async (name: string, image: string) => {
+    if (!API_URL) throw new Error("API_URL is not defined.");
+    try {
+        const response = await axios.post(`${API_URL}/categories`, { name, image });
+        return {
+            success: true,
+            categories: response.data
+        }
+    } catch (error) {
+        console.error("Error posting product:", error);
+        throw error;
+    }
+}
+
 // --- User API ---
+
+export const getUsers = async () => {
+    if (!API_URL) throw new Error("API_URL is not defined.");
+    try {
+        const response = await axios.get(`${API_URL}/users`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        throw error;
+    }
+}
 
 export const getUserById = async (id: number): Promise<Me> => {
     if (!API_URL) throw new Error("API_URL is not defined.");

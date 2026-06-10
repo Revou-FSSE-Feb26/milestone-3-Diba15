@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AddCartButton from "@/components/detailItem/AddCartButton";
 import { priceFormatter } from "@/utils";
+import CategoryPill from "@/components/ui/CategoryPill";
 
 export default function ItemCard({ item }: { item: Item }) {
     const { id, title, price, images, category }: Item = item;
@@ -25,7 +26,7 @@ export default function ItemCard({ item }: { item: Item }) {
                 <div className={"flex flex-col md:flex-row justify-between items-center gap-1 w-full"}>
                     <div className={"flex flex-col gap-1"}>
                         <h2 className={"text-md md:text-lg font-bold"}>{title}</h2>
-                        <p className={"text-gray-500"}>{category.name}</p>
+                        <CategoryPill category={category.name} />
                     </div>
                     <p className={"text-lg md:text-xl font-bold"}>{priceFormatter(Number(price))}</p>
                 </div>

@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
             </nav>
 
-            <main className="flex flex-1 flex-col p-4 justify-center items-center">
+            <main className="flex flex-1 flex-col p-4">
                 {children}
             </main>
 
