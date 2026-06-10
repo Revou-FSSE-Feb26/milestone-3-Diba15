@@ -37,7 +37,7 @@ export default function Register() {
         <div className="flex flex-col flex-1 items-center justify-center gap-2 min-h-[80vh] px-4">
             <div className="w-full max-w-md shadow-md rounded-lg overflow-hidden border border-gray-100">
                 <div className="p-6">
-                    <Link href="/" className="text-accent hover:underline text-sm inline-flex items-center gap-2 mb-6 font-medium">
+                    <Link href="/" className="text-accent hover:text-primary text-sm inline-flex items-center gap-2 mb-6 font-medium">
                         <i className="fa-solid fa-arrow-left"></i> Back to Home
                     </Link>
 
