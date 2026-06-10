@@ -25,7 +25,7 @@ export default function ItemCard({ item }: { item: Item }) {
                 </div>
                 <div className={"flex flex-col md:flex-row justify-between items-center gap-1 w-full"}>
                     <div className={"flex flex-col gap-1"}>
-                        <h2 className={"text-md md:text-lg font-bold"}>{title}</h2>
+                        <h2 className={"font-extrabold tracking-tight"}>{title}</h2>
                         <CategoryPill category={category.name} />
                     </div>
                     <p className={"text-lg md:text-xl font-bold"}>{priceFormatter(Number(price))}</p>

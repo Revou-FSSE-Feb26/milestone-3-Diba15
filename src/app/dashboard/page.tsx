@@ -37,7 +37,7 @@ export default function Dashboard() {
     return (
         <div className="space-y-8 bg-background text-foreground p-6 sm:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
-                <div className="space-y-2">
+                <div className="space-y-2 border-b border-gray-200 pb-6">
                     <h1 className="text-3xl font-bold">Dashboard</h1>
                     <p className="max-w-2xl text-sm text-gray-400">Dashboard Stats page</p>
                 </div>

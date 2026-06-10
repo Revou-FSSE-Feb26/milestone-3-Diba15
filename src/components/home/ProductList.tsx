@@ -28,6 +28,9 @@ export default function ProductList() {
     }, []);
 
     // Membuat daftar kategori secara dinamis dari data produk yang di-fetch
+    // Menggunakan useMemo untuk menghindari pembuatan ulang daftar kategori
+    // Ketika data produk berubah, daftar kategori akan diperbarui
+    // Ketika selectedCategory berubah, daftar kategori akan diperbarui
     const dynamicCategories = useMemo(() => {
         // Mengambil nama kategori yang unik menggunakan Set
         // Kenapa menggunakan Set?

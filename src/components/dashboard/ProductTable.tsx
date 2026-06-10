@@ -33,6 +33,19 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
     const entryStart = products.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
     const entryEnd = Math.min(currentPage * itemsPerPage, products.length)
 
+    // Menghitung halaman yang akan ditampilkan (maksimal 5)
+    const getVisiblePages = () => {
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        return Array.from({ length: Math.max(0, endPage - startPage + 1) }, (_, i) => startPage + i);
+    };
+
     return (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -151,19 +164,19 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                         <button
                             onClick={() => goToPage(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="p-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="p-2 rounded-lg border cursor-pointer  border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             title="Previous Page"
                         >
                             <ChevronLeft className="h-4 w-4" />
                         </button>
 
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        {getVisiblePages().map((page) => (
                             <button
                                 key={page}
                                 onClick={() => goToPage(page)}
-                                className={`w-9 h-9 rounded-lg border text-sm font-semibold transition-all ${currentPage === page
-                                    ? "bg-primary border-primary text-white shadow-sm"
-                                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                                className={`w-9 h-9 rounded-lg border text-sm font-semibold transition-all cursor-pointer ${currentPage === page
+                                    ? "bg-primary border-primary hover:bg-accent hover:border-accent text-white shadow-sm"
+                                    : "border-gray-200 bg-white hover:bg-primary text-gray-600 hover:text-white"
                                     }`}
                             >
                                 {page}
@@ -173,7 +186,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                         <button
                             onClick={() => goToPage(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="p-2 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="p-2 rounded-lg border cursor-pointer border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             title="Next Page"
                         >
                             <ChevronRight className="h-4 w-4" />

@@ -4,6 +4,8 @@ import CategoryPill from "@/components/ui/CategoryPill";
 import ActionButton from "@/components/home/ActionButton";
 import { Item } from "@/types/Types";
 import { getProductById, getProducts } from "@/api/index";
+import Link from "next/link";
+import { priceFormatter } from "@/utils";
 
 // 1. generateStaticParams() memberi tahu Next.js ID mana saja yang perlu dibuat statis saat Build Time (SSG)
 export async function generateStaticParams() {
@@ -53,6 +55,9 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
     return (
         <>
             <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
+                <Link href="/" className="self-start items-center text-accent hover:text-secondary text-sm inline-flex gap-2 font-medium mb-2 transition-colors">
+                    <i className="fa-solid fa-arrow-left"></i> Back to Home
+                </Link>
                 <h1 className="text-2xl font-bold mb-4 self-start">Product Detail</h1>
                 <div className="flex flex-col md:flex-row gap-6 items-center">
                     <div className="relative w-75 h-75 shrink-0">
@@ -69,7 +74,7 @@ export default async function ProductDetail({ params }: { params: Promise<{ id: 
                         <CategoryPill category={itemsData.category.name} />
                         <h2 className="text-xl font-bold text-gray-800">{itemsData.title}</h2>
                         <p className="text-gray-600 text-sm leading-relaxed">{itemsData.description}</p>
-                        <p className="text-lg font-extrabold text-gray-900">Price: ${itemsData.price}</p>
+                        <p className="text-lg font-extrabold text-gray-900">Price: {priceFormatter(itemsData.price)}</p>
 
                         {/* Komponen AddCartButton tetap dapat mempertahankan state "use client" di dalamnya.
                         Kita cukup mengirimkan data statis `itemsData` yang sudah siap pakai sebagai props.

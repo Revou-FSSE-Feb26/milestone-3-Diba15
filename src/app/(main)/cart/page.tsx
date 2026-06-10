@@ -63,7 +63,7 @@ export default function CartPage() {
 
 
                     <button onClick={checkOut}
-                        className={"bg-primary text-white px-4 py-2 rounded hover:bg-primary/80"}>
+                        className={"bg-primary text-white px-4 py-2 rounded hover:bg-accent cursor-pointer transition-colors duration-300"}>
                         Checkout
                     </button>
                 </div>

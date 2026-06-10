@@ -1,6 +1,5 @@
 "use client"
 
-import { ArrowLeft } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { Item } from "@/types/Types";
@@ -154,8 +153,8 @@ export default function DashboardProducts() {
                 {/* Header Section */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-6">
                     <div className="space-y-1">
-                        <Link href="/dashboard" className="text-primary hover:text-secondary text-sm inline-flex items-center gap-2 font-medium mb-2 transition-colors">
-                            <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                        <Link href="/dashboard" className="text-accent hover:text-secondary text-sm inline-flex items-center gap-2 font-medium mb-2 transition-colors">
+                            <i className="fa-solid fa-arrow-left"></i> Back to Dashboard
                         </Link>
                         <h1 className="text-3xl font-extrabold tracking-tight">Products Management</h1>
                         <p className="text-sm text-gray-500">Manage your products</p>
@@ -230,7 +229,7 @@ export default function DashboardProducts() {
                             </button>
                             <button
                                 type="submit"
-                                className="rounded-xl bg-primary hover:bg-secondary text-white px-6 py-2.5 text-sm font-bold shadow-sm transition-all cursor-pointer"
+                                className="rounded-xl bg-primary hover:bg-accent text-white px-6 py-2.5 text-sm font-bold shadow-sm transition-all cursor-pointer"
                             >
                                 {editingId ? "Simpan Perubahan" : "Tambah Produk"}
                             </button>
