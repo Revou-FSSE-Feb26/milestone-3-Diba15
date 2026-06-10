@@ -3,8 +3,6 @@ import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import React from "react";
-import Navbar from "@/components/ui/Navbar";
-import Footer from "@/components/ui/Footer";
 import { CartProvider } from "@/context/CartContext";
 
 const poppins = Poppins({
@@ -29,13 +27,7 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
         >
             <body className="min-h-full flex flex-col">
                 <CartProvider>
-                    <header className="sticky top-0 z-50 bg-primary">
-                        <Navbar />
-                    </header>
-                    <main className={"flex-1 flex flex-col bg-background justify-center"}>
-                        {children}
-                    </main>
-                    <Footer />
+                    {children}
                 </CartProvider>
             </body>
             <Script

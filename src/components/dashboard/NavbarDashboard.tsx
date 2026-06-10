@@ -8,7 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
-export default function Navbar() {
+export default function NavbarDashboard() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const { user, logout } = useCart();
     const router = useRouter();
@@ -75,15 +75,13 @@ export default function Navbar() {
 
                         {/* Dropdown menu */}
                         <div className={dropdownClass}>
-                            {user.role === "admin" && (
-                                <Link
-                                    href="/dashboard"
-                                    onClick={() => setIsDropdownOpen(false)}
-                                    className="w-full text-left py-1 hover:text-primary transition-colors"
-                                >
-                                    Dashboard
-                                </Link>
-                            )}
+                            <Link
+                                href="/dashboard/products"
+                                onClick={() => setIsDropdownOpen(false)}
+                                className="w-full text-left py-1 hover:text-primary transition-colors"
+                            >
+                                Products
+                            </Link>
                             <button
                                 onClick={() => { handleLogout(); setIsDropdownOpen(false); }}
                                 className="w-full text-left py-1 text-rose-500 hover:text-rose-600 font-medium transition-colors cursor-pointer"

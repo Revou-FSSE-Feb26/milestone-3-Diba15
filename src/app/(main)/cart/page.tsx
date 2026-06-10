@@ -6,31 +6,31 @@ import { CartItem } from "@/types/Types";
 import { cartTotalPrice, totalCartItems } from "@/utils";
 
 export default function CartPage() {
-    const { cart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+    const { getCart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+
+    const cart = getCart();
 
     // Fungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
     // jika tidak maka item akan dihapus dari keranjang
     const decreaseItem = (item: CartItem) => {
         if (item.quantity > 1) {
             decreaseQuantity(item.id);
-            triggerToast(`${item.name} quantity decreased`, "warning");
+            triggerToast(`${item.title} quantity decreased`, "warning");
         } else {
-            // removeFromCart(item.id);
-            triggerModal(`Are you sure you want to remove ${item.name} from the cart?`, "confirmation", () => {
+            triggerModal(`Are you sure you want to remove ${item.title} from the cart?`, "confirmation", () => {
                 removeFromCart(item.id);
-                triggerToast(`${item.name} removed from cart`, "error");
-            }, () => { });
-            // triggerToast(`${item.name} removed from cart`, "error");
+                triggerToast(`${item.title} removed from cart`, "error");
+            }, () => { })
         }
     };
 
     const handleAddToCart = (item: CartItem) => {
         addToCart(item);
-        triggerToast(`${item.name} added to cart`, "success");
+        triggerToast(`${item.title} added to cart`, "success");
     };
 
     const checkOut = () => {
-        clearCart(cart);
+        clearCart();
         triggerModal(`Successfull Checkout ${totalCartItems(cart)} items with total price ${cartTotalPrice(cart)} `, "alert");
     }
 
@@ -63,7 +63,7 @@ export default function CartPage() {
 
 
                     <button onClick={checkOut}
-                        className={"bg-primary text-white px-4 py-2 rounded hover:bg-primary/80"}>
+                        className={"bg-primary text-white px-4 py-2 rounded hover:bg-accent cursor-pointer transition-colors duration-300"}>
                         Checkout
                     </button>
                 </div>

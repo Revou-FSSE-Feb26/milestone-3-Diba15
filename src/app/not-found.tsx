@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function NotFound() {
     return (
         <main className="flex-1 w-full max-w-md mx-auto px-4 py-20 flex flex-col items-center justify-center font-sans text-center">
@@ -9,6 +11,9 @@ export default function NotFound() {
                 <p className="mt-2 text-sm text-slate-300">
                     The page you are looking for does not exist or has been moved.
                 </p>
+                <Link href="/" className="mt-4 inline-block text-sm font-semibold text-slate-900 dark:text-zinc-50">
+                    Go Home
+                </Link>
             </div>
         </main>
     );

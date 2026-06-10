@@ -38,21 +38,18 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
-import { Item, CartItem, CartContextType } from "@/types/Types";
+import { Item, CartItem, CartContextType, Me, LoginProps, RegisterUser } from "@/types/Types";
 import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
+import { loginUser, logoutUser, registerUser } from "@/api/auth";
+import axios from "axios";
+import { useRouter } from 'next/navigation';
 
-// Membuat konteks untuk keranjang belanja (CartContext) dengan tipe CartContextType. 
-// Nilai awalnya adalah undefined, yang berarti bahwa konteks ini harus digunakan di dalam CartProvider.
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-/**
- * Berfungsi sebagai penyedia konteks untuk keranjang belanja (CartContext) yang mengelola state dan fungsi-fungsi terkait keranjang belanja.
- * @param ReactNode
- * @returns CartContext.Provider
- */
 export function CartProvider({ children }: { children: ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
+    const [user, setUser] = useState<Me>({ id: 0, name: "", email: "", role: "" });
     const [showToast, setShowToast] = useState(false);
     const [message, setMessage] = useState("");
     const [type, setType] = useState<"success" | "error" | "warning">("success");
@@ -61,24 +58,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
         showModal: false,
         modalMsg: '',
         modalType: 'alert' as 'confirmation' | 'alert',
-        yesAction: () => {},
-        noAction: () => {},
-    })
+        yesAction: () => { },
+        noAction: () => { },
+    });
+    const router = useRouter();
 
-    /** 
-     * Berfungsi untuk trigger pesan melalui toast yang akan muncul di layar selama 3 detik. 
-     * Pesan ini bisa berupa informasi sukses, error, atau peringatan tergantung pada jenis pesan yang diberikan.
-     * @param message
-     * @param type
-    */
+    // Toast & Modal Function
+
     const triggerToast = (message: string, type: 'success' | 'error' | 'warning') => {
         setMessage(message);
         setType(type);
         setShowToast(true);
 
-        if (toastTimeout.current) {
-            clearTimeout(toastTimeout.current);
-        }
+        if (toastTimeout.current) clearTimeout(toastTimeout.current);
 
         toastTimeout.current = setTimeout(() => {
             setShowToast(false);
@@ -86,38 +78,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }, 3000);
     };
 
-    /**
-     * Berfungsi untuk trigger modal dengan pesan tertentu dan jenis modal (konfirmasi atau peringatan). Modal ini dapat digunakan 
-     * untuk meminta konfirmasi dari pengguna sebelum melakukan tindakan tertentu, seperti menghapus item dari keranjang.
-     * @param msg Pesan yang akan ditampilkan di dalam modal.
-     * @param modalType Jenis modal, bisa berupa 'confirmation' untuk modal konfirmasi atau 'alert' untuk modal peringatan.
-     * @param yesAction Fungsi yang akan dijalankan jika pengguna memilih "Yes" pada modal konfirmasi.
-     * @param noAction Fungsi yang akan dijalankan jika pengguna memilih "No" pada modal konfirmasi.
-     */
     const triggerModal = (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => {
         setModalConfig({
             showModal: true,
             modalMsg: msg,
             modalType: modalType,
             yesAction: (() => {
-                if(yesAction) yesAction();
+                if (yesAction) yesAction();
                 clearModal();
             }),
             noAction: (() => {
-                if(noAction) noAction();
+                if (noAction) noAction();
                 clearModal();
             })
         });
     };
 
     const clearModal = () => {
-        setModalConfig((prev) => ({...prev, showModal: false}));
+        setModalConfig((prev) => ({ ...prev, showModal: false }));
     };
 
-    /**
-     * Berfungsi untuk menghilangkan pesan toast secara manual sebelum waktu 3 detik habis.
-     * @return void
-     */
     const clearToast = () => {
         setShowToast(false);
         if (toastTimeout.current) {
@@ -126,19 +106,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    // Menggunakan useEffect untuk mengambil data keranjang dari localStorage saat komponen pertama kali dimuat.
+    // Initial Cart & User
+
     useEffect(() => {
         const storedCart = localStorage.getItem("cart");
-        const setTimer = setTimeout(() => {
-            if (storedCart) {
+        if (storedCart) {
+            setTimeout(() => {
                 setCart(JSON.parse(storedCart));
-            }
-        }, 0)
-
-        return () => clearTimeout(setTimer);
+            }, 0);
+        }
     }, []);
 
-    // Menggunakan useEffect untuk menyimpan data keranjang ke localStorage setiap kali state cart berubah.
     useEffect(() => {
         if (cart.length > 0) {
             localStorage.setItem("cart", JSON.stringify(cart));
@@ -147,15 +125,130 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, [cart]);
 
+    useEffect(() => {
+        const fetchUser = () => {
+            try {
+                const userData = localStorage.getItem("me");
+                if (userData) {
+                    const parsedUser = JSON.parse(userData);
+                    setUser(parsedUser);
+                } else {
+                    setUser({ id: 0, name: "", email: "", role: "" });
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const register = async (data: RegisterUser) => {
+        try {
+            await registerUser(data);
+            triggerToast("Register Success", "success");
+            return { success: true };
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                triggerToast(error.response?.data?.message || "Registration failed", "error");
+                throw new Error(error.response?.data?.message || "Registration failed");
+            }
+
+            triggerToast(error instanceof Error ? error.message : "Registration failed", "error");
+            throw new Error(error instanceof Error ? error.message : "Registration failed");
+        } finally {
+            router.push("/login");
+        }
+    }
+
     /**
-     * Berfungsi untuk menambahkan item ke dalam keranjang. Jika item sudah ada di dalam keranjang, maka fungsi ini akan meningkatkan jumlah (quantity) 
-     * item tersebut. Jika item belum ada, maka fungsi ini akan menambahkannya ke dalam keranjang dengan quantity awal 1.
-     * @param item Item yang akan ditambahkan ke dalam keranjang.
-     * @return void
+     * Login
+     * Fungsi login untuk mengautentikasi pengguna.
+     * Menggunakan API loginUser, menyimpan data pengguna ke state dan localStorage,
+     * serta mengatur header Authorization untuk axios.
+     * 
+     * @param data LoginProps
+     * @returns { success: boolean }
+     */
+    const login = async (data: LoginProps) => {
+        try {
+            const response = await loginUser(data);
+
+            if (response?.success && response.user) {
+                const loggedInUser = response.user;
+
+                setUser({
+                    id: loggedInUser.id,
+                    name: loggedInUser.name,
+                    email: loggedInUser.email,
+                    role: loggedInUser.role,
+                    avatar: loggedInUser.avatar
+                });
+
+                // Pasang JWT access token untuk request selanjutnya
+                axios.defaults.headers.common["Authorization"] = `Bearer ${loggedInUser.accessToken}`;
+
+                localStorage.setItem("me", JSON.stringify({
+                    id: loggedInUser.id,
+                    name: loggedInUser.name,
+                    email: loggedInUser.email,
+                    role: loggedInUser.role,
+                    avatar: loggedInUser.avatar
+                }));
+
+                triggerToast("Berhasil login!", "success");
+                return { success: true };
+            }
+        } catch (error: unknown) {
+
+            if (axios.isAxiosError(error)) {
+                triggerToast(error.message || "Gagal login", "error");
+                throw new Error(error.response?.data?.message || "Gagal login");
+            }
+
+            throw new Error(error instanceof Error ? error.message : "Gagal login");
+        }
+    }
+
+    /**
+     * Logout
+     * Fungsi logout untuk menghapus data pengguna dari state dan localStorage,
+     * menghapus header Authorization dari axios, dan memanggil logoutUser.
+     * 
+     * @returns void
+     */
+    const logout = async () => {
+        try {
+            await logoutUser();
+            setUser({ id: 0, name: "", email: "", role: "" });
+            localStorage.removeItem("me");
+            delete axios.defaults.headers.common["Authorization"];
+            triggerToast("Berhasil logout", "success");
+        } catch (error) {
+            console.error("Logout Context Error:", error);
+        }
+    };
+
+    const getCartWithId = (id: number) => {
+        return cart.find(item => item.id === id && item.userId === user.id);
+    }
+
+    const getCart = () => {
+        return cart.filter(item => item.userId === user.id);
+    }
+
+    /**
+     * Add To Cart
+     * Fungsi untuk menambahkan item ke keranjang belanja.
+     * Memeriksa apakah item sudah ada di keranjang atau belum.
+     * Jika ada, quantity akan diincrement.
+     * Jika tidak ada, item akan ditambahkan ke keranjang.
+     * 
+     * @param item 
+     * @returns void
      */
     const addToCart = (item: Item) => {
         setCart((prevCart) => {
-            const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+            const existingItem = prevCart.find(cartItem => cartItem.id === item.id && cartItem.userId === user.id);
             if (existingItem) {
                 return prevCart.map(cartItem =>
                     cartItem.id === item.id
@@ -163,70 +256,84 @@ export function CartProvider({ children }: { children: ReactNode }) {
                         : cartItem
                 );
             }
-            return [...prevCart, { ...item, quantity: 1 }];
+            return [...prevCart, { ...item, quantity: 1, userId: user.id }];
         });
+        triggerToast("Item ditambahkan ke keranjang", "success");
     };
 
     /**
-     * Berfungsi untuk menghapus item dari keranjang berdasarkan ID item.
-     * @param itemId ID item yang akan dihapus dari keranjang.
-     * @return void
+     * Remove From Cart
+     * Fungsi untuk menghapus item dari keranjang belanja.
+     * Memeriksa apakah item ada di keranjang atau tidak.
+     * Jika ada, item akan dihapus dari keranjang.
+     * 
+     * @param itemId
+     * @returns void
      */
     const removeFromCart = (itemId: number) => {
-        setCart((prevCart) => {
-            return prevCart.filter(item => item.id !== itemId);
-        });
+        setCart((prevCart) => prevCart.filter(item => item.id !== itemId && item.userId === user.id));
     };
 
     /**
-     * Berfungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
-     * jika tidak maka item akan dihapus dari keranjang
-     * @param itemId ID item yang akan dikurangi jumlahnya.
-     * @return void
+     * Decrease Quantity
+     * Fungsi untuk mengurangi jumlah item di keranjang belanja.
+     * Memeriksa apakah item ada di keranjang atau tidak.
+     * Jika ada, quantity akan dikurangi.
+     * 
+     * @param itemId
+     * @returns void
      */
     const decreaseQuantity = (itemId: number) => {
         setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item);
+            return prevCart.map(item => item.id === itemId && item.userId === user.id ? { ...item, quantity: item.quantity - 1 } : item);
         });
     };
 
     /**
-     * Berfungsi untuk mengubah jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
-     * jika tidak maka item akan dihapus dari keranjang
-     * @param itemId ID item yang akan diubah jumlahnya.
-     * @param quantity Jumlah item yang akan diubah.
-     * @return void
+     * Update Quantity
+     * Fungsi untuk memperbarui jumlah item di keranjang belanja.
+     * Memeriksa apakah item ada di keranjang atau tidak.
+     * Jika ada, quantity akan diperbarui.
+     * 
+     * @param itemId
+     * @param quantity
+     * @returns void
      */
     const updateQuantity = (itemId: number, quantity: number) => {
         setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId ? { ...item, quantity } : item);
+            return prevCart.map(item => item.id === itemId && item.userId === user.id ? { ...item, quantity } : item);
         });
     };
 
     /**
-     * Berfungsi untuk mengosongkan keranjang.
-     * @return void
+     * Clear Cart
+     * Fungsi untuk mengosongkan keranjang belanja.
+     * 
+     * @returns void
      */
     const clearCart = () => {
-        setCart([]);
+        setCart((prevCart) => {
+            return prevCart.filter(item => item.userId !== user.id);
+        });
+        localStorage.removeItem("cart");
+        localStorage.setItem("cart", JSON.stringify(cart));
+        triggerToast("Keranjang berhasil dikosongkan", "success");
     };
 
     return (
         <CartContext.Provider value={{
-            cart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity, triggerToast, clearToast, triggerModal
+            user,
+            cart, getCartWithId, getCart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity,
+            triggerToast, clearToast, triggerModal,
+            login, logout, register
         }}>
             {showToast && <Toast message={message} type={type} />}
-            {modalConfig.showModal && <Modal msg={modalConfig.modalMsg} modalType={modalConfig.modalType} yesAction={modalConfig.yesAction} noAction={modalConfig.noAction}/>}
+            {modalConfig.showModal && <Modal msg={modalConfig.modalMsg} modalType={modalConfig.modalType} yesAction={modalConfig.yesAction} noAction={modalConfig.noAction} />}
             {children}
         </CartContext.Provider>
     );
 }
 
-/**
- * Berfungsi untuk mengakses konteks keranjang (CartContext) di dalam komponen lain. Fungsi ini memastikan bahwa konteks digunakan di dalam CartProvider,
- * @returns Nilai konteks keranjang yang berisi state dan fungsi-fungsi untuk mengelola keranjang belanja.
- * @throws Error jika fungsi ini digunakan di luar CartProvider.
- */
 export function useCart() {
     const context = useContext(CartContext);
     if (!context) throw new Error("useCart must be used within a CartProvider");
