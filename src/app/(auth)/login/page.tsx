@@ -91,6 +91,9 @@ export default function Login() {
                         <Link href="/register" className="text-accent hover:underline text-sm font-medium">
                             Don&apos;t have an account? Register
                         </Link>
+                        
+                        <p className="text-xs mt-2 text-slate-400 leading-tight">Admin: admin@mail.com/admin123</p>
+                        <p className="text-xs mt-2 text-slate-400 leading-tight">Normal user? just register bruh.</p>
                     </div>
                 </div>
             </div>
