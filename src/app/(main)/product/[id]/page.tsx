@@ -11,18 +11,17 @@ import Loading from "@/components/ui/Loading";
 export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
     const [itemsData, setItemsData] = useState<Item>({
         id: 0,
-        name: "",
+        title: "",
         description: "",
         price: 0,
-        img_url: "",
-        category: "",
+        images: [],
+        category: { id: 0, name: "", image: "" },
         stock: 0,
     });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProduct = async () => {
-
             // Await params-nya karena params adalah sebuah Promise
             const resolvedParams = await params;
 
@@ -42,17 +41,36 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
         fetchProduct();
     }, [params]);
 
+    
+    const productImage = itemsData.images && itemsData.images.length > 0
+        ? itemsData.images[0]
+        : "https://picsum.photos/800";
+
     return (
         <>
             {itemsData && !loading && (
                 <div className="flex flex-col items-center justify-center p-8 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
                     <h1 className="text-2xl font-bold mb-4 self-start">Product Detail</h1>
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <Image src={itemsData.img_url} alt={itemsData.name} width={300} height={300} className="object-cover w-auto h-auto rounded-lg" />
-                        <div className={"flex flex-col gap-2 max-w-md justify-center"}>
-                            <h2 className="text-xl font-bold">{itemsData.name}</h2>
-                            <p>{itemsData.description}</p>
-                            <p>Price: ${itemsData.price}</p>
+                    <div className="flex flex-col md:flex-row gap-6 items-center">
+                        <div className="relative w-75 h-75 shrink-0">
+                            <Image
+                                src={productImage}
+                                alt={itemsData.title}
+                                width={300}
+                                height={300}
+                                className="object-cover rounded-lg w-full h-full"
+                                priority
+                            />
+                        </div>
+                        <div className="flex flex-col gap-3 max-w-md justify-center">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-accent bg-accent/10 px-2 py-1 rounded self-start">
+                                {itemsData.category.name}
+                            </span>
+                            <h2 className="text-xl font-bold text-gray-800">{itemsData.title}</h2>
+                            <p className="text-gray-600 text-sm leading-relaxed">{itemsData.description}</p>
+                            <p className="text-lg font-extrabold text-gray-900">Price: ${itemsData.price}</p>
+
+                            {/* Pastikan AddCartButton di dalamnya sudah menyesuaikan dengan tipe data baru */}
                             <AddCartButton item={itemsData} />
                         </div>
                     </div>

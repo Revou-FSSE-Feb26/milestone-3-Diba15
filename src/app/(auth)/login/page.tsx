@@ -1,6 +1,6 @@
 "use client";
 
-import Input from "@/components/ui/form/Input"
+import Input from "@/components/ui/form/Input";
 import Link from "next/link";
 import { LoginProps } from "@/types/Types";
 import { useForm } from "react-hook-form";
@@ -14,28 +14,36 @@ export default function Login() {
             password: "",
         }
     });
-    const { triggerToast, login } = useCart();
+    const { login } = useCart();
     const router = useRouter();
 
     const onSubmit = async (data: LoginProps) => {
         try {
-            await login(data);
-            triggerToast("Register Success", "success");
+            // Memanggil fungsi login dari context.
+            // Fungsi login di CartContext sudah otomatis menangani Toast sukses dan error.
+            const result = await login(data);
+
+            // Pengalihan halaman hanya dilakukan jika login berhasil
+            if (result?.success) {
+                router.push("/");
+            }
         } catch (error) {
-            console.error("Error registering user:", error);
-        } finally {
-            router.push("/");
+            console.error("Error logging in user:", error);
         }
-    }
+    };
 
     return (
-        <div className="flex flex-col flex-1 items-center justify-center gap-2">
-            <div className="w-full max-w-md shadow-md p-4">
-                <Link href="/" className="text-accent hover:underline text-sm self-start mb-4"><i className="fa-solid fa-arrow-left"></i> Back to Home</Link>
-                <div className="flex p-4 bg-primary rounded-t-lg text-white">
-                    <h2>Login</h2>
-                </div>
-                <div className="flex flex-col gap-4 p-4 rounded-b-lg">
+        <div className="flex flex-col flex-1 items-center justify-center gap-2 min-h-[80vh] px-4">
+            <div className="w-full max-w-md bg-white shadow-md rounded-lg overflow-hidden border border-gray-100">
+                <div className="p-6">
+                    <Link href="/" className="text-accent hover:underline text-sm inline-flex items-center gap-2 mb-6 font-medium">
+                        <i className="fa-solid fa-arrow-left"></i> Back to Home
+                    </Link>
+
+                    <div className="flex p-4 bg-primary rounded-lg text-white mb-6">
+                        <h2 className="text-lg font-bold">Login</h2>
+                    </div>
+
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                         <div>
                             <Input
@@ -54,6 +62,7 @@ export default function Login() {
                                 <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
                             )}
                         </div>
+
                         <div>
                             <Input
                                 placeholder="*******"
@@ -62,18 +71,29 @@ export default function Login() {
                                 {...register("password", {
                                     required: "Password is Required",
                                     minLength: {
-                                        value: 8,
-                                        message: "8 characters at least"
+                                        value: 6,
+                                        message: "6 characters at least"
                                     }
                                 })}
                             />
                             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
                         </div>
-                        <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-accent w-full">Login</button>
+
+                        <button
+                            type="submit"
+                            className="bg-primary text-white py-3 rounded-lg cursor-pointer hover:bg-accent transition-all w-full font-semibold mt-4 shadow-sm hover:shadow-md"
+                        >
+                            Login
+                        </button>
                     </form>
-                    <Link href="/register" className="text-accent hover:underline text-sm w-fit self-center">Don&apos;t have an account? Register</Link>
+
+                    <div className="mt-6 text-center">
+                        <Link href="/register" className="text-accent hover:underline text-sm font-medium">
+                            Don&apos;t have an account? Register
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }
