@@ -66,10 +66,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         noAction: () => { },
     });
 
+    const isAuth = typeof window !== "undefined" &&
+        localStorage.getItem("isLoggedIn") === "true";
+
     const {
         data: profile,
         mutate: mutateProfile,
-    } = useSWR<Me>("profile", getProfile);
+    } = useSWR<Me>(
+        isAuth ? "profile" : null, 
+        getProfile
+    );
 
     const user = profile ?? { id: 0, name: "", email: "", role: "" };
 
@@ -157,6 +163,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             const response = await loginUser(data);
 
             if (response?.success) {
+                localStorage.setItem("isLoggedIn", "true");
                 await mutateProfile();
 
                 triggerToast("Berhasil login!", "success");
@@ -183,6 +190,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const logout = async () => {
         try {
             await logoutUser();
+            localStorage.removeItem("isLoggedIn");
             await mutateProfile(undefined, false);
             triggerToast("Berhasil logout", "success");
         } catch (error) {

@@ -3,9 +3,21 @@ import AddCartButton from "@/components/detailItem/AddCartButton";
 import CategoryPill from "@/components/ui/CategoryPill";
 import ActionButton from "@/components/home/ActionButton";
 import { Item } from "@/types/Types";
-import { getProductById } from "@/api/index";
+import { getProductById, getProductsWithPagination } from "@/api/index";
 import Link from "next/link";
 import { priceFormatter } from "@/utils";
+
+export const revalidation = 300;
+
+export async function generateStaticParams() {
+    try {
+        const products = await getProductsWithPagination(1, 8);
+        return products.map(product => ({ id: product.id.toString() }));
+    } catch (error) {
+        console.error("Gagal mengambil data produk di server:", error);
+        return [];
+    }
+}
 
 export default async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = await params;
