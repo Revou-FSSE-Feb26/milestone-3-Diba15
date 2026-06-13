@@ -24,7 +24,7 @@ export const registerUser = async (user: RegisterUser) => {
             name,
             email,
             password,
-            avatar: "https://picsum.photos/800" 
+            avatar: "https://picsum.photos/800"
         };
 
         const response = await axios.post(`${API_URL}/users/`, newUser);
@@ -75,7 +75,16 @@ export const loginUser = async (credentials: LoginProps) => {
             path: "/",
         });
 
+        cookieStore.set("accessToken", access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60,
+            path: "/",
+        });
+
         cookieStore.set("user_role", userData.role, {
+            httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 60 * 60 * 24 * 7,
@@ -83,13 +92,12 @@ export const loginUser = async (credentials: LoginProps) => {
         });
 
         // 4. Return data user berserta access token
-        const me: Me & { accessToken: string } = {
+        const me: Me = {
             id: userData.id,
             name: userData.name,
             email: userData.email,
             role: userData.role,
             avatar: userData.avatar,
-            accessToken: access_token // Dikirim ke client untuk Axios defaults
         };
 
         return { success: true, user: me };
@@ -102,6 +110,25 @@ export const loginUser = async (credentials: LoginProps) => {
     }
 };
 
+export const getProfile = async (): Promise<Me> => {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+
+    if (!accessToken) {
+        throw new Error("Unauthorized");
+    }
+
+    if (!API_URL) throw new Error("API_URL is not defined.");
+
+    const response = await axios.get(`${API_URL}/auth/profile`, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+
+    return response.data;
+};
+
 /**
  * Logout User
  */
@@ -109,5 +136,6 @@ export const logoutUser = async () => {
     const cookieStore = await cookies();
     cookieStore.delete("refreshToken");
     cookieStore.delete("user_role");
+    cookieStore.delete("accessToken");
     return { success: true };
 };

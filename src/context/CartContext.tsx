@@ -41,14 +41,14 @@ import { createContext, useContext, useState, useEffect, ReactNode, useRef } fro
 import { Item, CartItem, CartContextType, Me, LoginProps, RegisterUser } from "@/types/Types";
 import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
-import { loginUser, logoutUser, registerUser } from "@/api/auth";
+import { loginUser, logoutUser, registerUser, getProfile } from "@/api/auth";
+import useSWR from "swr";
 import axios from "axios";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>([]);
-    const [user, setUser] = useState<Me>({ id: 0, name: "", email: "", role: "" });
     const [showToast, setShowToast] = useState(false);
     const [message, setMessage] = useState("");
     const [type, setType] = useState<"success" | "error" | "warning">("success");
@@ -60,6 +60,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         yesAction: () => { },
         noAction: () => { },
     });
+
+    const {
+        data: profile,
+        mutate: mutateProfile,
+    } = useSWR<Me>("profile", getProfile);
+
+    const user = profile ?? { id: 0, name: "", email: "", role: "" };
 
     // Toast & Modal Function
 
@@ -128,26 +135,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, [cart]);
 
-    useEffect(() => {
-        const fetchUser = () => {
-            try {
-                const userData = localStorage.getItem("me");
-                if (userData) {
-                    const parsedUser = JSON.parse(userData);
-                    setUser(parsedUser);
-                } else {
-                    setUser({ id: 0, name: "", email: "", role: "" });
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        fetchUser();
-    }, []);
-
     const register = async (data: RegisterUser) => {
         try {
             await registerUser(data);
+            await mutateProfile();
             triggerToast("Register Success", "success");
             return { success: true };
         } catch (error: unknown) {
@@ -174,27 +165,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         try {
             const response = await loginUser(data);
 
-            if (response?.success && response.user) {
-                const loggedInUser = response.user;
-
-                setUser({
-                    id: loggedInUser.id,
-                    name: loggedInUser.name,
-                    email: loggedInUser.email,
-                    role: loggedInUser.role,
-                    avatar: loggedInUser.avatar
-                });
-
-                // Pasang JWT access token untuk request selanjutnya
-                axios.defaults.headers.common["Authorization"] = `Bearer ${loggedInUser.accessToken}`;
-
-                localStorage.setItem("me", JSON.stringify({
-                    id: loggedInUser.id,
-                    name: loggedInUser.name,
-                    email: loggedInUser.email,
-                    role: loggedInUser.role,
-                    avatar: loggedInUser.avatar
-                }));
+            if (response?.success) {
+                await mutateProfile();
 
                 triggerToast("Berhasil login!", "success");
                 return { success: true };
@@ -220,9 +192,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const logout = async () => {
         try {
             await logoutUser();
-            setUser({ id: 0, name: "", email: "", role: "" });
-            localStorage.removeItem("me");
-            delete axios.defaults.headers.common["Authorization"];
+            await mutateProfile(undefined, false);
             triggerToast("Berhasil logout", "success");
         } catch (error) {
             console.error("Logout Context Error:", error);
