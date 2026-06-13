@@ -1,7 +1,8 @@
 import { Item } from "@/types/Types";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import { Edit3, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight } from "lucide-react"
+import { priceFormatter } from "@/utils";
 
 interface TableProps {
     products: Item[];
@@ -13,7 +14,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
     // State untuk Pagination
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(5)
-    
+
     // Menghitung jumlah halaman
     const totalPages = Math.ceil(products.length / itemsPerPage)
 
@@ -34,7 +35,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
     const entryEnd = Math.min(currentPage * itemsPerPage, products.length)
 
     // Menghitung halaman yang akan ditampilkan (maksimal 5)
-    const getVisiblePages = () => {
+    const visiblePages = useMemo(() => {
         const maxVisiblePages = 5;
         let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
         const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -43,8 +44,20 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
             startPage = Math.max(1, endPage - maxVisiblePages + 1);
         }
 
-        return Array.from({ length: Math.max(0, endPage - startPage + 1) }, (_, i) => startPage + i);
-    };
+        return Array.from(
+            { length: Math.max(0, endPage - startPage + 1) },
+            (_, i) => startPage + i
+        );
+    }, [currentPage, totalPages]);
+
+    // Memastikan currentPage tidak melebihi jumlah halaman, jika ada perubahan 
+    useEffect(() => {
+        if (totalPages > 0 && currentPage > totalPages) {
+            setTimeout(() => {
+                setCurrentPage(totalPages);
+            }, 0);
+        }
+    }, [currentPage, totalPages]);
 
     return (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
@@ -95,6 +108,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                                                 src={product.images[0]}
                                                 alt={product.title}
                                                 fill
+                                                sizes="48px"
                                                 className="object-cover w-full h-full"
                                             />
                                         </div>
@@ -109,11 +123,11 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                                 </td>
                                 <td className="py-4 px-6">
                                     <span className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-1 text-xs font-semibold text-secondary">
-                                        {product.category.name}
+                                        {product.category?.name ?? "Uncategorized"}
                                     </span>
                                 </td>
                                 <td className="py-4 px-6 font-extrabold text-gray-950">
-                                    ${Number(product.price).toFixed(2)}
+                                    ${priceFormatter(product.price)}
                                 </td>
                                 <td className="py-4 px-6">
                                     <div className="flex items-center justify-center gap-2">
@@ -170,7 +184,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                             <ChevronLeft className="h-4 w-4" />
                         </button>
 
-                        {getVisiblePages().map((page) => (
+                        {visiblePages.map((page) => (
                             <button
                                 key={page}
                                 onClick={() => goToPage(page)}
