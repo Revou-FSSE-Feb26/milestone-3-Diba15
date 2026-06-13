@@ -153,7 +153,7 @@ export default function DashboardProducts() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground p-6 sm:p-8">
+        <div className="min-h-screen bg-background text-foreground p-6 sm:p-8 border border-gray-200">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header Section */}
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-6">

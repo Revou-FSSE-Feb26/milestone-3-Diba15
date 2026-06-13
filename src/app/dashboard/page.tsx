@@ -19,7 +19,7 @@ export default function Dashboard() {
 
 
     return (
-        <div className="space-y-8 bg-background text-foreground p-6 sm:p-8">
+        <div className="space-y-8 bg-background text-foreground p-6 sm:p-8 border border-gray-200">
             <div className="max-w-7xl mx-auto space-y-8">
                 <div className="space-y-2 border-b border-gray-200 pb-6">
                     <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -30,12 +30,12 @@ export default function Dashboard() {
                     <StatCard
                         title="Active Users"
                         value={totalUsers().toString()}
-                        icon={<Users className="h-6 w-6 text-cyan-400" />}
+                        icon={<Users className="h-6 w-6 text-primary" />}
                     />
                     <StatCard
                         title="Total Products"
                         value={totalProducts ? totalProducts().toString() : "0"}
-                        icon={<ShoppingCart className="h-6 w-6 text-emerald-400" />}
+                        icon={<ShoppingCart className="h-6 w-6 text-accent" />}
                     />
                 </section>
             </div>
