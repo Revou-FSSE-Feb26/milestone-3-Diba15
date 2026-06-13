@@ -2,70 +2,51 @@
 
 import ItemCard from "@/components/home/ItemCard";
 import Loading from "@/components/ui/Loading";
+import useSWRInfinite from "swr/infinite";
 import { Item } from "@/types/Types";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { getProductsWithPagination } from "@/api/index";
 
 export default function ProductList() {
     const LIMIT_PER_PAGE = 8;
-
-    const [itemsData, setItemsData] = useState<Item[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const [loading, setLoading] = useState(true);
-    
-    // State tambahan untuk Load More
-    const [offset, setOffset] = useState(0);
-    const [loadingMore, setLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
 
-    // Fetch data pertama kali (Page 1)
-    useEffect(() => {
-        const getInitialProducts = async () => {
-            try {
-                setLoading(true);
-                const products = await getProductsWithPagination(0, LIMIT_PER_PAGE);
-                
-                setItemsData(products);
-                setOffset(products.length);
-                
-                // Jika produk yang kembali kurang dari LIMIT, berarti data di backend sudah habis
-                if (products.length < LIMIT_PER_PAGE) {
-                    setHasMore(false);
-                }
-            } catch (error) {
-                console.error("Error fetching products:", error);
-            } finally {
-                setLoading(false);
-            }
+    // Fungsi untuk mengambil data/key halaman berikutnya, 
+    // dan memeriksa apakah halaman sebelumnya memiliki data yang cukup
+    const getKey = (pageIndex: number, previousPageData: Item[] | null) => {
+        if (previousPageData && previousPageData.length < LIMIT_PER_PAGE) return null;
+
+        return {
+            offset: pageIndex * LIMIT_PER_PAGE,
+            limit: LIMIT_PER_PAGE,
         };
-        getInitialProducts();
-    }, []);
+    };
+
+    // Fungsi untuk mengambil data halaman berikutnya melalui SWR Infinite
+    const {
+        data,
+        size,
+        setSize,
+        isLoading,
+        isValidating,
+    } = useSWRInfinite(
+        getKey,
+        ({ offset, limit }) => getProductsWithPagination(offset, limit)
+    );
+
+    // State tambahan untuk Load More
+    const itemsData = useMemo(() => {
+        return data ? data.flat() : [];
+    }, [data]);
+    const lastPage = data?.[data.length - 1];
+    const hasMore = !lastPage || lastPage.length === LIMIT_PER_PAGE;
+    const loadingMore = isValidating && size > 1;
 
     // Fungsi untuk memuat data halaman berikutnya
-    const handleLoadMore = async () => {
+    const handleLoadMore = () => {
         if (loadingMore || !hasMore) return;
-
-        try {
-            setLoadingMore(true);
-            const newProducts = await getProductsWithPagination(offset, LIMIT_PER_PAGE);
-
-            if (newProducts.length === 0) {
-                setHasMore(false);
-            } else {
-                // Menggabungkan produk lama dengan produk yang baru di-fetch
-                setItemsData((prevItems) => [...prevItems, ...newProducts]);
-                setOffset((prevOffset) => prevOffset + newProducts.length);
-                // Jika data yang didapat kurang dari LIMIT, tandanya sudah halaman terakhir
-                if (newProducts.length < LIMIT_PER_PAGE) {
-                    setHasMore(false);
-                }
-            }
-        } catch (error) {
-            console.error("Error loading more products:", error);
-        } finally {
-            setLoadingMore(false);
-        }
+        setSize(size + 1);
     };
 
     // Membuat daftar kategori secara dinamis
@@ -74,8 +55,11 @@ export default function ProductList() {
         return ["All", ...Array.from(uniqueCats)];
     }, [itemsData]);
 
+    // Fungsi untuk memfilter data berdasarkan kategori dan pencarian
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-
+    // Menggunakan useMemo untuk membatasi pemanggilan fungsi filter
+    // jika nilai input tidak berubah dari pemanggilan sebelumnya
+    // dengan menggunakan useMemo ini, fungsi filter hanya akan dipanggil ketika nilai input berubah
     const filteredItems = useMemo(
         () =>
             itemsData.filter((item) => {
@@ -95,8 +79,8 @@ export default function ProductList() {
     return (
         <div>
             {
-                loading ? (
-                    <Loading status={loading} />
+                isLoading ? (
+                    <Loading status={isLoading} />
                 ) : (
                     <div>
                         {/* Filter & Search Bar */}

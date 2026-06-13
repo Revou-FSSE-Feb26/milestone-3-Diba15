@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import useSWR from 'swr';
 import { useForm } from "react-hook-form"
 import { Item } from "@/types/Types";
 import Link from "next/link";
@@ -18,20 +19,15 @@ interface ProductFormValues {
 }
 
 export default function DashboardProducts() {
-    const [products, setProducts] = useState<Item[]>([])
     const [editingId, setEditingId] = useState<number | null>(null)
     const { triggerToast, triggerModal } = useCart();
 
-    const fetchProducts = async () => {
-        const productData = await getProducts();
-        setProducts(productData);
-    }
-
-    useEffect(() => {
-        setTimeout(() => {
-            fetchProducts();
-        }, 0);
-    }, [])
+    const {
+        data: products = [],
+        mutate,
+        isLoading,
+        error
+    } = useSWR<Item[]>("dashboard-products", getProducts);
 
     // Inisialisasi React Hook Form
     const {
@@ -106,7 +102,7 @@ export default function DashboardProducts() {
             }
 
             // Fetch ulang produk setelah perubahan
-            await fetchProducts()
+            await mutate();
             resetForm()
         } catch (error) {
             console.error("Gagal menyimpan produk:", error);
@@ -145,7 +141,7 @@ export default function DashboardProducts() {
                 "confirmation",
                 async () => {
                     await deleteProduct(id);
-                    await fetchProducts();
+                    await mutate();
                     triggerToast("Product deleted successfully", "success");
                 })
 
@@ -248,6 +244,8 @@ export default function DashboardProducts() {
 
                 {/* Products Table with Pagination */}
                 <ProductTable products={products} handleEdit={handleEdit} handleDelete={handleDelete} />
+                {isLoading && <p className="text-sm text-gray-500">Loading products...</p>}
+                {error && <p className="text-sm text-red-500">Failed to load products.</p>}
             </div>
         </div>
     )

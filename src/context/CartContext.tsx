@@ -43,7 +43,6 @@ import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
 import { loginUser, logoutUser, registerUser } from "@/api/auth";
 import axios from "axios";
-import { useRouter } from 'next/navigation';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -61,7 +60,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         yesAction: () => { },
         noAction: () => { },
     });
-    const router = useRouter();
 
     // Toast & Modal Function
 
