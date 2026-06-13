@@ -5,6 +5,7 @@ import Input from "@/components/ui/form/Input";
 import { useForm, useWatch } from "react-hook-form";
 import { RegisterUser } from "@/types/Types";
 import { useCart } from "@/context/CartContext";
+import {useRouter} from "next/navigation";
 
 export default function Register() {
     const { control, register: registerField, handleSubmit, formState: { errors } } = useForm<RegisterUser>({
@@ -16,6 +17,7 @@ export default function Register() {
             role: "admin"
         }
     });
+    const router = useRouter();
 
     // Melakukan rename 'register' dari useCart menjadi 'registerUserContext' 
     // agar tidak bertabrakan dengan 'register' milik react-hook-form
@@ -28,6 +30,7 @@ export default function Register() {
             // Memanggil fungsi registrasi dari context yang sudah menangani 
             // Toast sukses, Toast error, dan navigasi redirect router ke /login
             await registerUserContext(data);
+            router.push("/login");
         } catch (error) {
             console.error("Gagal mendaftarkan user dari form:", error);
         }

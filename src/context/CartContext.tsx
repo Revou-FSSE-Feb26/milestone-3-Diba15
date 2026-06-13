@@ -110,10 +110,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-            setTimeout(() => {
-                setCart(JSON.parse(storedCart));
-            }, 0);
+        try {
+            if (storedCart) {
+                setTimeout(() => {
+                    setCart(JSON.parse(storedCart));
+                }, 0);
+            }
+        } catch (error) {
+            console.log(error);
+            localStorage.removeItem("cart");
         }
     }, []);
 
@@ -155,8 +160,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
             triggerToast(error instanceof Error ? error.message : "Registration failed", "error");
             throw new Error(error instanceof Error ? error.message : "Registration failed");
-        } finally {
-            router.push("/login");
         }
     }
 
