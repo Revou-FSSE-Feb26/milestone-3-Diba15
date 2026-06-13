@@ -48,7 +48,12 @@ import axios from "axios";
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCart] = useState<CartItem[]>((() => {
+        if (typeof window === "undefined") return [];
+
+        const storedCart = localStorage.getItem("cart");
+        return storedCart ? JSON.parse(storedCart) : [];
+    }));
     const [showToast, setShowToast] = useState(false);
     const [message, setMessage] = useState("");
     const [type, setType] = useState<"success" | "error" | "warning">("success");
@@ -112,20 +117,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     // Initial Cart & User
-
-    useEffect(() => {
-        const storedCart = localStorage.getItem("cart");
-        try {
-            if (storedCart) {
-                setTimeout(() => {
-                    setCart(JSON.parse(storedCart));
-                }, 0);
-            }
-        } catch (error) {
-            console.log(error);
-            localStorage.removeItem("cart");
-        }
-    }, []);
 
     useEffect(() => {
         if (cart.length > 0) {
