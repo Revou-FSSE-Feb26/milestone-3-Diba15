@@ -1,29 +1,13 @@
 "use client";
 
-import { ShoppingCart, Users } from "lucide-react"
+import { ShoppingCart, Users } from "lucide-react";
+import useSWR from 'swr';
 import StatCard from "@/components/dashboard/StatCard"
 import { getUsers, getProducts } from "@/api";
-import { useEffect, useState } from "react";
-import { Item } from "@/types/Types";
 
 export default function Dashboard() {
-    const [users, setUsers] = useState([]);
-    const [products, setProducts] = useState<Item[]>([]);
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const userData = await getUsers();
-            setUsers(userData);
-        }
-
-        const fetchProducts = async () => {
-            const productData = await getProducts();
-            setProducts(productData);
-        }
-
-        fetchUsers();
-        fetchProducts();
-    }, []);
+    const { data: users = [] } = useSWR("users", getUsers);
+    const { data: products = [] } = useSWR("products", getProducts);
 
     const totalUsers = () => {
         return users.length;

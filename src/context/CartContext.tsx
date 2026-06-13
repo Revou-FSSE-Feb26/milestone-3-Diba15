@@ -43,7 +43,6 @@ import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
 import { loginUser, logoutUser, registerUser } from "@/api/auth";
 import axios from "axios";
-import { useRouter } from 'next/navigation';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -61,7 +60,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         yesAction: () => { },
         noAction: () => { },
     });
-    const router = useRouter();
 
     // Toast & Modal Function
 
@@ -110,10 +108,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-            setTimeout(() => {
-                setCart(JSON.parse(storedCart));
-            }, 0);
+        try {
+            if (storedCart) {
+                setTimeout(() => {
+                    setCart(JSON.parse(storedCart));
+                }, 0);
+            }
+        } catch (error) {
+            console.log(error);
+            localStorage.removeItem("cart");
         }
     }, []);
 
@@ -155,8 +158,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
             triggerToast(error instanceof Error ? error.message : "Registration failed", "error");
             throw new Error(error instanceof Error ? error.message : "Registration failed");
-        } finally {
-            router.push("/login");
         }
     }
 
