@@ -18,17 +18,13 @@ export default function Login() {
     const router = useRouter();
 
     const onSubmit = async (data: LoginProps) => {
-        try {
-            // Memanggil fungsi login dari context.
-            // Fungsi login di CartContext sudah otomatis menangani Toast sukses dan error.
-            const result = await login(data);
+        // Memanggil fungsi login dari context.
+        // Fungsi login di CartContext sudah otomatis menangani Toast sukses dan error.
+        const result = await login(data);
 
-            // Pengalihan halaman hanya dilakukan jika login berhasil
-            if (result?.success) {
-                router.push("/");
-            }
-        } catch (error) {
-            console.error("Error logging in user:", error);
+        // Pengalihan halaman hanya dilakukan jika login berhasil
+        if (result?.success) {
+            router.push("/");
         }
     };
 
@@ -91,7 +87,7 @@ export default function Login() {
                         <Link href="/register" className="text-accent hover:underline text-sm font-medium">
                             Don&apos;t have an account? Register
                         </Link>
-                        
+
                         <p className="text-xs mt-2 text-slate-400 leading-tight">Admin: admin@mail.com/admin123</p>
                         <p className="text-xs mt-2 text-slate-400 leading-tight">Normal user? just register bruh.</p>
                     </div>

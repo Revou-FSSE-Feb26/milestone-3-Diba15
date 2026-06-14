@@ -156,7 +156,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
      * serta mengatur header Authorization untuk axios.
      * 
      * @param data LoginProps
-     * @returns { success: boolean }
+     * @returns { success: boolean, message: string }
      */
     const login = async (data: LoginProps) => {
         try {
@@ -167,16 +167,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 await mutateProfile();
 
                 triggerToast("Berhasil login!", "success");
-                return { success: true };
+                return { success: true, message: "Login success" };
             }
         } catch (error: unknown) {
-
             if (axios.isAxiosError(error)) {
-                triggerToast(error.message || "Gagal login", "error");
-                throw new Error(error.response?.data?.message || "Gagal login");
+                triggerToast(error.response?.data?.message || "Login failed", "error");
+                return { success: false, message: error.response?.data?.message || "Login failed" };
             }
 
-            throw new Error(error instanceof Error ? error.message : "Gagal login");
+            triggerToast("Wrong Email & Password!", "error");
+            return { success: false, message: "Login failed" };
         }
     }
 
