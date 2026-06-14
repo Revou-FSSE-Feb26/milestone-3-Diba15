@@ -7,11 +7,11 @@ import { getProductById, getProductsWithPagination } from "@/api/index";
 import Link from "next/link";
 import { priceFormatter } from "@/utils";
 
-export const revalidation = 300;
+export const revalidate = 300;
 
 export async function generateStaticParams() {
     try {
-        const products = await getProductsWithPagination(1, 8);
+        const products = await getProductsWithPagination(0, 8);
         return products.map(product => ({ id: product.id.toString() }));
     } catch (error) {
         console.error("Gagal mengambil data produk di server:", error);
