@@ -1,13 +1,14 @@
 "use client";
 
-import { ShoppingCart, Users } from "lucide-react";
+import { ShoppingCart, Users, Package } from "lucide-react";
 import useSWR from 'swr';
 import StatCard from "@/components/dashboard/StatCard"
-import { getUsers, getProducts } from "@/api";
+import { getUsers, getProducts, getCategories } from "@/api";
 
 export default function Dashboard() {
     const { data: users = [] } = useSWR("users", getUsers);
     const { data: products = [] } = useSWR("products", getProducts);
+    const { data: categories = [] } = useSWR("categories", getCategories);
 
     const totalUsers = () => {
         return users.length;
@@ -17,6 +18,9 @@ export default function Dashboard() {
         return products.length;
     }
 
+    const totalCategories = () => {
+        return categories.length;
+    }
 
     return (
         <div className="space-y-8 bg-background text-foreground p-6 sm:p-8 border border-gray-200">
@@ -36,6 +40,11 @@ export default function Dashboard() {
                         title="Total Products"
                         value={totalProducts ? totalProducts().toString() : "0"}
                         icon={<ShoppingCart className="h-6 w-6 text-accent" />}
+                    />
+                    <StatCard
+                        title="Total Categories"
+                        value={totalCategories ? totalCategories().toString() : "0"}
+                        icon={<Package className="h-6 w-6 text-primary" />}
                     />
                 </section>
             </div>

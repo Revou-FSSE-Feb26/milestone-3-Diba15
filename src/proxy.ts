@@ -7,7 +7,7 @@ const ADMIN_ROUTES = ["/dashboard"];
 export function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
 
-    const token = request.cookies.get("refreshToken")?.value;
+    const token = request.cookies.get("accessToken")?.value;
     const userRole = request.cookies.get("user_role")?.value;
 
     if (!token && AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
