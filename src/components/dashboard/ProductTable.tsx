@@ -127,7 +127,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                                     </span>
                                 </td>
                                 <td className="py-4 px-6 font-extrabold text-gray-950">
-                                    ${priceFormatter(product.price)}
+                                    {priceFormatter(product.price)}
                                 </td>
                                 <td className="py-4 px-6">
                                     <div className="flex items-center justify-center gap-2">
@@ -155,7 +155,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                         {products.length === 0 && (
                             <tr>
                                 <td colSpan={6} className="text-center py-12 text-gray-400">
-                                    Belum ada produk yang ditambahkan. Silakan isi form di atas.
+                                    No products found
                                 </td>
                             </tr>
                         )}

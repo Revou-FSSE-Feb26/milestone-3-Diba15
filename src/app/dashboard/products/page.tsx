@@ -190,7 +190,7 @@ export default function DashboardProducts() {
                                 <Input
                                     type="text"
                                     {...register("title", { required: "Product title is required" })}
-                                    placeholder="Contoh: Classic Red Jogger" label="Product Title"
+                                    placeholder="Example: Classic Red Jogger" label="Product Title"
                                 />
                                 {errors.title && <p className="text-accent text-xs mt-0.5">{errors.title.message}</p>}
                             </div>
@@ -235,7 +235,7 @@ export default function DashboardProducts() {
                             <TextArea
                                 rows={3}
                                 {...register("description", { required: "Description is required" })}
-                                placeholder="Tuliskan deskripsi lengkap mengenai kualitas dan ukuran produk..."
+                                placeholder="Input product description here..."
                                 label="Product Description"
                             />
                             {errors.description && <p className="text-accent text-xs mt-0.5">{errors.description.message}</p>}
