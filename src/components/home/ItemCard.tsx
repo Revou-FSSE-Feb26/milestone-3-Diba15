@@ -12,7 +12,7 @@ export default function ItemCard({ item }: { item: Item }) {
 
     return (
         <div className={"bg-white rounded-lg shadow-md p-4 flex flex-col items-center justify-between gap-2"}>
-            <Link href={`/product/${id}`} className={"flex flex-col items-center gap-2 w-full justify-between h-full"}>
+            <Link href={`/product/${id}`} prefetch={false} className={"flex flex-col items-center gap-2 w-full justify-between h-full"}>
                 <div
                     className={"w-full h-72 border-2 p-4 border-gray-200 rounded-lg overflow-hidden flex items-center justify-center group"}>
                     <Image

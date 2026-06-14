@@ -7,7 +7,8 @@ import { getProductById, getProductsWithPagination } from "@/api/index";
 import Link from "next/link";
 import { priceFormatter } from "@/utils";
 
-export const revalidate = 300;
+export const revalidate = 60;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
     try {
