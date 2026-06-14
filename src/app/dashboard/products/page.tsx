@@ -3,18 +3,20 @@
 import { useState } from "react"
 import useSWR from 'swr';
 import { useForm } from "react-hook-form"
-import { Item } from "@/types/Types";
+import { Item, PlatziCategory } from "@/types/Types";
 import Link from "next/link";
-import { getProducts, postProducts, updateProduct, deleteProduct } from "@/api";
+import { getProducts, postProducts, updateProduct, deleteProduct, getCategories } from "@/api";
 import ProductTable from "@/components/dashboard/ProductTable";
 import Input from "@/components/ui/form/Input";
 import TextArea from "@/components/ui/form/TextArea";
+import SelectInput from "@/components/ui/form/SelectInput";
 import { useCart } from "@/context/CartContext";
 
 interface ProductFormValues {
     images: string;
     title: string;
     price: number;
+    category: number;
     description: string;
 }
 
@@ -29,6 +31,10 @@ export default function DashboardProducts() {
         error
     } = useSWR<Item[]>("dashboard-products", getProducts);
 
+    const {
+        data: categories = [],
+    } = useSWR<PlatziCategory[]>("categories", getCategories);
+
     // Inisialisasi React Hook Form
     const {
         register,
@@ -41,6 +47,7 @@ export default function DashboardProducts() {
             images: "",
             title: "",
             price: 0,
+            category: 1,
             description: "",
         }
     })
@@ -58,6 +65,7 @@ export default function DashboardProducts() {
             images: "",
             title: "",
             price: 0,
+            category: 1,
             description: "",
         })
     }
@@ -81,6 +89,7 @@ export default function DashboardProducts() {
                     title: data.title,
                     price: Number(data.price),
                     description: data.description,
+                    categoryId: data.category,
                     images: parsedImages
                 };
 
@@ -93,7 +102,7 @@ export default function DashboardProducts() {
                     title: data.title,
                     price: Number(data.price),
                     description: data.description,
-                    categoryId: 1,
+                    categoryId: data.category,
                     images: parsedImages
                 };
 
@@ -122,6 +131,7 @@ export default function DashboardProducts() {
         setValue("images", product.images.join(", "))
         setValue("title", product.title)
         setValue("price", Number(product.price))
+        setValue("category", product.category.id)
         setValue("description", product.description)
     }
 
@@ -200,8 +210,16 @@ export default function DashboardProducts() {
                             </div>
                         </div>
 
-                        {/* Input Images  */}
+                        {/* Input Category and Images  */}
                         <div className="grid gap-5 md:grid-cols-2">
+                            <div className="flex flex-col gap-1.5">
+                                <SelectInput
+                                    options={categories.map(category => ({ label: category.name, value: String(category.id) }))}
+                                    {...register("category", { required: "Product category is required" })}
+                                    label="Product Category"
+                                />
+                                {errors.category && <p className="text-accent text-xs mt-0.5">{errors.category.message}</p>}
+                            </div>
                             <div className="flex flex-col gap-1.5">
                                 <Input
                                     type="text"

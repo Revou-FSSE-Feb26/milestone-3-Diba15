@@ -12,7 +12,7 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
     try {
-        const products = await getProductsWithPagination(0, 8);
+        const products = await getProductsWithPagination({offset: 0, limit: 8});
         return products.map(product => ({ id: product.id.toString() }));
     } catch (error) {
         console.error("Gagal mengambil data produk di server:", error);

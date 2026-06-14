@@ -5,6 +5,13 @@ const API_URL: string | undefined = process.env.NEXT_PUBLIC_API_URL;
 
 // --- Products API ---
 
+interface PaginationParams {
+    offset: number;
+    limit: number;
+    title?: string;
+    categoryId?: number;
+}
+
 export const getProducts = async (): Promise<Item[]> => {
     if (!API_URL) throw new Error("API_URL is not defined.");
     try {
@@ -16,14 +23,16 @@ export const getProducts = async (): Promise<Item[]> => {
     }
 }
 
-export const getProductsWithPagination = async (offset: number = 0, limit: number = 8): Promise<Item[]> => {
+export const getProductsWithPagination = async (
+    { offset, limit, title, categoryId }: PaginationParams): Promise<Item[]> => {
     if (!API_URL) throw new Error("API_URL is not defined.");
     try {
-
-        const params = {
+        const params: PaginationParams = {
             offset: offset,
             limit: limit
         }
+        if (title) params.title = title;
+        if (categoryId) params.categoryId = categoryId;
 
         const response = await axios.get(`${API_URL}/products`, { params });
         return response.data;
@@ -44,29 +53,7 @@ export const getProductById = async (id: number): Promise<Item> => {
     }
 }
 
-export const getProductsByCategory = async (categoryId: number): Promise<Item[]> => {
-    if (!API_URL) throw new Error("API_URL is not defined.");
-    try {
-        const response = await axios.get(`${API_URL}/products/`, { params: { categoryId: categoryId } });
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching products by category:", error);
-        throw error;
-    }
-}
-
-export const searchProducts = async (searchTerm: string): Promise<Item[]> => {
-    if (!API_URL) throw new Error("API_URL is not defined.");
-    try {
-        const response = await axios.get(`${API_URL}/products/`, { params: { title: searchTerm } });
-        return response.data;
-    } catch (error) {
-        console.error("Error searching products:", error);
-        throw error;
-    }
-}
-
-export const postProducts = async (product: Item): Promise<{success: boolean, product: Item}> => {
+export const postProducts = async (product: Item): Promise<{ success: boolean, product: Item }> => {
     if (!API_URL) throw new Error("API_URL is not defined.");
     try {
         const response = await axios.post(`${API_URL}/products/`, product);
@@ -105,6 +92,17 @@ export const deleteProduct = async (id: number): Promise<void> => {
 }
 
 // Categories API
+
+export const getCategories = async () => {
+    if (!API_URL) throw new Error("API_URL is not defined.");
+    try {
+        const response = await axios.get(`${API_URL}/categories`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+        throw error;
+    }
+}
 
 export const postCategories = async (name: string, image: string) => {
     if (!API_URL) throw new Error("API_URL is not defined.");

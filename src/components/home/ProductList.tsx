@@ -3,14 +3,36 @@
 import ItemCard from "@/components/home/ItemCard";
 import Loading from "@/components/ui/Loading";
 import useSWRInfinite from "swr/infinite";
-import { Item } from "@/types/Types";
-import { useMemo, useState } from "react";
-import { getProductsWithPagination } from "@/api/index";
+import useSWR from "swr";
+import { Item, PlatziCategory } from "@/types/Types";
+import { useMemo, useState, useEffect } from "react";
+import { getProductsWithPagination, getCategories } from "@/api/index";
 
 export default function ProductList() {
     const LIMIT_PER_PAGE = 8;
     const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
+
+    // Fungsi untuk memperbarui debouncedSearchTerm setiap kali searchTerm berubah
+    // menggunakan useEffect dan setTimeout untuk melakukan debouncing dengan waktu tunggu 500ms
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
+
+    // Fungsi untuk mengambil data kategori melalui SWR
+    const { data: categories } = useSWR<PlatziCategory[]>("categories", getCategories);
+
+    // Fungsi untuk mengambil id kategori yang dipilih
+    // dan mengembalikan undefined jika kategori "All" dipilih
+    // Menggunakan useMemo karena fungsi ini hanya dipanggil ketika selectedCategory berubah
+    const selectedCategoryId = useMemo(() => {
+        if (selectedCategory === "All") return undefined;
+        return categories?.find(c => c.name === selectedCategory)?.id;
+    }, [selectedCategory, categories]);
 
     // Fungsi untuk mengambil data/key halaman berikutnya, 
     // dan memeriksa apakah halaman sebelumnya memiliki data yang cukup
@@ -20,6 +42,8 @@ export default function ProductList() {
         return {
             offset: pageIndex * LIMIT_PER_PAGE,
             limit: LIMIT_PER_PAGE,
+            title: debouncedSearchTerm.trim() || undefined,
+            categoryId: selectedCategoryId
         };
     };
 
@@ -32,7 +56,7 @@ export default function ProductList() {
         isValidating,
     } = useSWRInfinite(
         getKey,
-        ({ offset, limit }) => getProductsWithPagination(offset, limit)
+        ({ offset, limit, title, categoryId }) => getProductsWithPagination({ offset, limit, title, categoryId })
     );
 
     // State tambahan untuk Load More
@@ -51,30 +75,9 @@ export default function ProductList() {
 
     // Membuat daftar kategori secara dinamis
     const dynamicCategories = useMemo(() => {
-        const uniqueCats = new Set(itemsData.map(item => item.category.name));
+        const uniqueCats = new Set(categories?.map(category => category.name));
         return ["All", ...Array.from(uniqueCats)];
-    }, [itemsData]);
-
-    // Fungsi untuk memfilter data berdasarkan kategori dan pencarian
-    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-    // Menggunakan useMemo untuk membatasi pemanggilan fungsi filter
-    // jika nilai input tidak berubah dari pemanggilan sebelumnya
-    // dengan menggunakan useMemo ini, fungsi filter hanya akan dipanggil ketika nilai input berubah
-    const filteredItems = useMemo(
-        () =>
-            itemsData.filter((item) => {
-                const matchesCategory =
-                    selectedCategory === "All" ||
-                    item.category.name.toLowerCase() === selectedCategory.toLowerCase();
-
-                const matchesName =
-                    normalizedSearchTerm === "" ||
-                    item.title.toLowerCase().includes(normalizedSearchTerm);
-
-                return matchesCategory && matchesName;
-            }),
-        [itemsData, normalizedSearchTerm, selectedCategory]
-    );
+    }, [categories]);
 
     return (
         <div>
@@ -120,20 +123,20 @@ export default function ProductList() {
 
                         {/* Product Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-                            {filteredItems.map((item) => (
+                            {itemsData.map((item) => (
                                 <ItemCard key={item.id} item={item} />
                             ))}
                         </div>
 
                         {/* Empty State */}
-                        {filteredItems.length === 0 && (
+                        {itemsData.length === 0 && (
                             <div className="text-center text-gray-500 py-10">
                                 No products found for the selected search and category.
                             </div>
                         )}
 
                         {/* LOAD MORE BUTTON */}
-                        {hasMore && filteredItems.length > 0 && (
+                        {hasMore && itemsData.length > 0 && (
                             <div className="mt-8 flex justify-center">
                                 <button
                                     onClick={handleLoadMore}
