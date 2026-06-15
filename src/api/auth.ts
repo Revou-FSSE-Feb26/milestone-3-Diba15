@@ -16,6 +16,8 @@ export const authApi = axios.create({
     baseURL: API_URL,
 });
 
+const cookieStore = await cookies();
+
 /**
  * Register User (Menggunakan Platzi API)
  */
@@ -70,8 +72,7 @@ export const loginUser = async (credentials: LoginProps) => {
 
         const userData = profileResponse.data;
 
-        // 3. Set Cookie di Sisi Server
-        const cookieStore = await cookies();
+        // Set Cookie di Sisi Server
 
         cookieStore.set("refreshToken", refresh_token, {
             httpOnly: true,
@@ -123,6 +124,45 @@ export const getProfile = async (): Promise<Me> => {
 
     return response.data;
 };
+
+// Jaga2 kalo nanti diterapin
+export const refreshUser = async () => {
+    try {
+        const refreshToken = cookieStore.get("refreshToken")?.value;
+
+        if (!refreshToken) {
+            throw new Error("Unauthorized");
+        }
+
+        const response = await authApi.post(`/auth/refresh`, {
+            refresh_token: refreshToken,
+        });
+
+        const { access_token, refresh_token } = response.data;
+
+        cookieStore.set("refreshToken", refresh_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60 * 24 * 7, // 7 hari
+            path: "/",
+        });
+
+        cookieStore.set("accessToken", access_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60,
+            path: "/",
+        });
+
+
+        return response.data;
+    } catch (error) {
+        console.error("Error refreshing user:", error);
+        throw error;
+    }
+}
 
 /**
  * Logout User
