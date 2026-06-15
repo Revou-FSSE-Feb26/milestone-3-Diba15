@@ -3,7 +3,8 @@
 import { ShoppingCart, Users, Package } from "lucide-react";
 import useSWR from 'swr';
 import StatCard from "@/components/dashboard/StatCard"
-import { getUsers, getProducts, getCategories } from "@/api";
+import { getProducts, getCategories } from "@/api";
+import { getUsers } from "@/api/auth";
 
 export default function Dashboard() {
     const { data: users = [] } = useSWR("users", getUsers);

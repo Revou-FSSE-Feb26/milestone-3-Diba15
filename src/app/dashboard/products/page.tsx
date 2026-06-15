@@ -5,7 +5,8 @@ import useSWR from 'swr';
 import { useForm } from "react-hook-form"
 import { Item, PlatziCategory } from "@/types/Types";
 import Link from "next/link";
-import { getProducts, postProducts, updateProduct, deleteProduct, getCategories } from "@/api";
+import { getProducts, getCategories } from "@/api";
+import { postProducts, updateProduct, deleteProduct } from "@/api/auth"
 import ProductTable from "@/components/dashboard/ProductTable";
 import Input from "@/components/ui/form/Input";
 import TextArea from "@/components/ui/form/TextArea";

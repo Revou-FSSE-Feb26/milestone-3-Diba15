@@ -3,15 +3,23 @@
 import axios from "axios";
 import { cookies } from "next/headers";
 import { RegisterUser, LoginProps, Me } from "@/types/Types";
+import { Item } from "@/types/Types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_URL) {
+    throw new Error("API_URL is not defined.");
+}
+
+// Protected API
+export const authApi = axios.create({
+    baseURL: API_URL,
+});
 
 /**
  * Register User (Menggunakan Platzi API)
  */
 export const registerUser = async (user: RegisterUser) => {
-    if (!API_URL) throw new Error("API_URL is not defined.");
-
     const { password, confirmPassword, name, email } = user;
 
     if (password !== confirmPassword) {
@@ -27,7 +35,7 @@ export const registerUser = async (user: RegisterUser) => {
             avatar: "https://picsum.photos/800"
         };
 
-        const response = await axios.post(`${API_URL}/users/`, newUser);
+        const response = await authApi.post(`/users`, newUser);
         return { success: true, data: response.data };
     } catch (error: unknown) {
         console.error("Error registering user:", error);
@@ -42,13 +50,11 @@ export const registerUser = async (user: RegisterUser) => {
  * Login User (Mendapatkan JWT dari Platzi API)
  */
 export const loginUser = async (credentials: LoginProps) => {
-    if (!API_URL) throw new Error("API_URL is not defined.");
-
     try {
         const { email, password } = credentials;
 
         // 1. Dapatkan Token JWT dari Platzi
-        const loginResponse = await axios.post(`${API_URL}/auth/login`, {
+        const loginResponse = await authApi.post(`/auth/login`, {
             email,
             password
         });
@@ -56,7 +62,7 @@ export const loginUser = async (credentials: LoginProps) => {
         const { access_token, refresh_token } = loginResponse.data;
 
         // 2. Gunakan Access Token untuk mendapatkan data profil user
-        const profileResponse = await axios.get(`${API_URL}/auth/profile`, {
+        const profileResponse = await authApi.get(`/auth/profile`, {
             headers: {
                 Authorization: `Bearer ${access_token}`
             }
@@ -91,16 +97,7 @@ export const loginUser = async (credentials: LoginProps) => {
             path: "/",
         });
 
-        // 4. Return data user berserta access token
-        const me: Me = {
-            id: userData.id,
-            name: userData.name,
-            email: userData.email,
-            role: userData.role,
-            avatar: userData.avatar,
-        };
-
-        return { success: true, user: me };
+        return { success: true };
     } catch (error: unknown) {
         console.error("Error logging in user:", error);
         if (axios.isAxiosError(error)) {
@@ -118,9 +115,7 @@ export const getProfile = async (): Promise<Me> => {
         throw new Error("Unauthorized");
     }
 
-    if (!API_URL) throw new Error("API_URL is not defined.");
-
-    const response = await axios.get(`${API_URL}/auth/profile`, {
+    const response = await authApi.get(`/auth/profile`, {
         headers: {
             Authorization: `Bearer ${accessToken}`,
         },
@@ -139,3 +134,67 @@ export const logoutUser = async () => {
     cookieStore.delete("accessToken");
     return { success: true };
 };
+
+
+export const getUsers = async () => {
+    try {
+        const response = await authApi.get(`/users`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        throw error;
+    }
+}
+
+// POST products
+
+export const postProducts = async (product: Item): Promise<{ success: boolean, product: Item }> => {
+    
+    try {
+        const response = await authApi.post(`/products`, product);
+        return {
+            success: true,
+            product: response.data
+        }
+    } catch (error) {
+        console.error("Error posting product:", error);
+        throw error;
+    }
+}
+
+export const updateProduct = async (id: number, product: Item): Promise<{ success: boolean, product: Item }> => {
+    try {
+        const response = await authApi.put(`/products/${id}`, product);
+        return {
+            success: true,
+            product: response.data
+        };
+    } catch (error) {
+        console.error("Error updating product:", error);
+        throw error;
+    }
+}
+
+export const deleteProduct = async (id: number): Promise<void> => {
+    try {
+        await authApi.delete(`/products/${id}`);
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        throw error;
+    }
+}
+
+// Post Categories
+
+export const postCategories = async (name: string, image: string) => {
+    try {
+        const response = await authApi.post(`/categories`, { name, image });
+        return {
+            success: true,
+            categories: response.data
+        }
+    } catch (error) {
+        console.error("Error posting product:", error);
+        throw error;
+    }
+}
