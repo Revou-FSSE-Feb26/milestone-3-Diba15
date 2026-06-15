@@ -134,7 +134,7 @@ export const refreshUser = async () => {
             throw new Error("Unauthorized");
         }
 
-        const response = await authApi.post(`/auth/refresh`, {
+        const response = await authApi.post(`/auth/refresh-token`, {
             refresh_token: refreshToken,
         });
 
