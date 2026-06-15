@@ -16,8 +16,6 @@ export const authApi = axios.create({
     baseURL: API_URL,
 });
 
-const cookieStore = await cookies();
-
 /**
  * Register User (Menggunakan Platzi API)
  */
@@ -73,6 +71,7 @@ export const loginUser = async (credentials: LoginProps) => {
         const userData = profileResponse.data;
 
         // Set Cookie di Sisi Server
+        const cookieStore = await cookies();
 
         cookieStore.set("refreshToken", refresh_token, {
             httpOnly: true,
@@ -128,6 +127,7 @@ export const getProfile = async (): Promise<Me> => {
 // Jaga2 kalo nanti diterapin
 export const refreshUser = async () => {
     try {
+        const cookieStore = await cookies();
         const refreshToken = cookieStore.get("refreshToken")?.value;
 
         if (!refreshToken) {

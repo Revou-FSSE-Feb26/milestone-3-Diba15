@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 
 const AUTH_ROUTES = ["/cart"];
 const ADMIN_ROUTES = ["/dashboard"];
+const AUTH_PAGES = ["/login", "/register"];
 
 export function proxy(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
@@ -11,6 +12,11 @@ export function proxy(request: NextRequest) {
     const userRole = request.cookies.get("user_role")?.value;
 
     if (!token && AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
+        // Alihkan mereka ke halaman utama atau dashboard
+        return NextResponse.redirect(new URL("/", request.url));
+    } 
+    
+    if (token && AUTH_PAGES.some((route) => pathname.startsWith(route))) {
         // Alihkan mereka ke halaman utama atau dashboard
         return NextResponse.redirect(new URL("/", request.url));
     }
@@ -33,6 +39,8 @@ export function proxy(request: NextRequest) {
 export const config = {
     matcher: [
         "/cart",
-        "/dashboard/:path*"
+        "/dashboard/:path*",
+        "/login",
+        "/register"
     ]
 }
