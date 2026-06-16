@@ -41,11 +41,13 @@ import { createContext, useContext, useState, useEffect, ReactNode, useRef } fro
 import { Item, CartItem, CartContextType, Me, LoginProps, RegisterUser } from "@/types/Types";
 import Toast from "@/components/ui/Toast";
 import Modal from "@/components/ui/Modal";
-import { loginUser, logoutUser, registerUser, getProfile } from "@/api/auth";
 import useSWR from "swr";
 import axios from "axios";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// Fetcher for user SWR
+const clientFetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [cart, setCart] = useState<CartItem[]>((() => {
@@ -58,6 +60,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const [message, setMessage] = useState("");
     const [type, setType] = useState<"success" | "error" | "warning">("success");
     const toastTimeout = useRef<NodeJS.Timeout | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>((() => {
+        if (typeof window === "undefined") return false;
+
+        const storedIsLoggedIn = localStorage.getItem("isLoggedIn");
+        return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
+    }));
     const [modalConfig, setModalConfig] = useState({
         showModal: false,
         modalMsg: '',
@@ -66,15 +74,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         noAction: () => { },
     });
 
-    const isAuth = typeof window !== "undefined" &&
-        localStorage.getItem("isLoggedIn") === "true";
-
     const {
         data: profile,
         mutate: mutateProfile,
     } = useSWR<Me>(
-        isAuth ? "profile" : null, 
-        getProfile
+        isLoggedIn ? "/api/auth/profile" : null,
+        clientFetcher
     );
 
     const user = profile ?? { id: 0, name: "", email: "", role: "" };
@@ -134,8 +139,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const register = async (data: RegisterUser) => {
         try {
-            await registerUser(data);
-            await mutateProfile();
+            await axios.post("/api/auth/register", data);
             triggerToast("Register Success", "success");
             return { success: true };
         } catch (error: unknown) {
@@ -160,10 +164,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
      */
     const login = async (data: LoginProps) => {
         try {
-            const response = await loginUser(data);
+            const response = await axios.post("/api/auth/login", data);
 
-            if (response?.success) {
+            if (response.data.success) {
                 localStorage.setItem("isLoggedIn", "true");
+                setIsLoggedIn(true);
+
                 await mutateProfile();
 
                 triggerToast("Berhasil login!", "success");
@@ -189,8 +195,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
      */
     const logout = async () => {
         try {
-            await logoutUser();
+            await axios.post("/api/auth/logout");
             localStorage.removeItem("isLoggedIn");
+            setIsLoggedIn(false);
             await mutateProfile(undefined, false);
             triggerToast("Berhasil logout", "success");
         } catch (error) {

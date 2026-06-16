@@ -6,7 +6,9 @@ import useSWRInfinite from "swr/infinite";
 import useSWR from "swr";
 import { Item, PlatziCategory } from "@/types/Types";
 import { useMemo, useState, useEffect } from "react";
-import { getProductsWithPagination, getCategories } from "@/api/index";
+
+// Fetcher standard untuk SWR di sisi client
+const clientFetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ProductList() {
     const LIMIT_PER_PAGE = 8;
@@ -24,7 +26,7 @@ export default function ProductList() {
     }, [searchTerm]);
 
     // Fungsi untuk mengambil data kategori melalui SWR
-    const { data: categories } = useSWR<PlatziCategory[]>("categories", getCategories);
+    const { data: categories } = useSWR<PlatziCategory[]>("api/categories", clientFetcher);
 
     // Fungsi untuk mengambil id kategori yang dipilih
     // dan mengembalikan undefined jika kategori "All" dipilih
@@ -39,12 +41,14 @@ export default function ProductList() {
     const getKey = (pageIndex: number, previousPageData: Item[] | null) => {
         if (previousPageData && previousPageData.length < LIMIT_PER_PAGE) return null;
 
-        return {
-            offset: pageIndex * LIMIT_PER_PAGE,
-            limit: LIMIT_PER_PAGE,
-            title: debouncedSearchTerm.trim() || undefined,
-            categoryId: selectedCategoryId
-        };
+        const searchParams = new URLSearchParams();
+        searchParams.append("offset", (pageIndex * LIMIT_PER_PAGE).toString());
+        searchParams.append("limit", LIMIT_PER_PAGE.toString());
+
+        if (debouncedSearchTerm.trim()) searchParams.append("title", debouncedSearchTerm.trim());
+        if (selectedCategoryId) searchParams.append("categoryId", selectedCategoryId.toString());
+
+        return `/api/products?${searchParams.toString()}`;
     };
 
     // Fungsi untuk mengambil data halaman berikutnya melalui SWR Infinite
@@ -54,9 +58,9 @@ export default function ProductList() {
         setSize,
         isLoading,
         isValidating,
-    } = useSWRInfinite(
+    } = useSWRInfinite<Item[]>(
         getKey,
-        ({ offset, limit, title, categoryId }) => getProductsWithPagination({ offset, limit, title, categoryId })
+        clientFetcher
     );
 
     // State tambahan untuk Load More

@@ -5,13 +5,12 @@ import useSWR from 'swr';
 import { useForm } from "react-hook-form"
 import { Item, PlatziCategory } from "@/types/Types";
 import Link from "next/link";
-import { getProducts, getCategories } from "@/api";
-import { postProducts, updateProduct, deleteProduct } from "@/api/auth"
 import ProductTable from "@/components/dashboard/ProductTable";
 import Input from "@/components/ui/form/Input";
 import TextArea from "@/components/ui/form/TextArea";
 import SelectInput from "@/components/ui/form/SelectInput";
 import { useCart } from "@/context/CartContext";
+import axios from "axios";
 
 interface ProductFormValues {
     images: string;
@@ -20,6 +19,9 @@ interface ProductFormValues {
     category: number;
     description: string;
 }
+
+// Fetcher standard untuk SWR di sisi client
+const clientFetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function DashboardProducts() {
     const [editingId, setEditingId] = useState<number | null>(null)
@@ -30,11 +32,11 @@ export default function DashboardProducts() {
         mutate,
         isLoading,
         error
-    } = useSWR<Item[]>("dashboard-products", getProducts);
+    } = useSWR<Item[]>("/api/products", clientFetcher);
 
     const {
         data: categories = [],
-    } = useSWR<PlatziCategory[]>("categories", getCategories);
+    } = useSWR<PlatziCategory[]>("api/categories", clientFetcher);
 
     // Inisialisasi React Hook Form
     const {
@@ -84,30 +86,20 @@ export default function DashboardProducts() {
             .map((item) => item.trim())
             .filter(Boolean)
 
+        const payload = {
+            title: data.title,
+            price: Number(data.price),
+            description: data.description,
+            categoryId: data.category,
+            images: parsedImages
+        };
+
         try {
             if (editingId !== null) {
-                const updatedPayload = {
-                    title: data.title,
-                    price: Number(data.price),
-                    description: data.description,
-                    categoryId: data.category,
-                    images: parsedImages
-                };
-
-                // Kenapa menggunakan 2 as unknown dan Item?
-                // Karena kita tidak tahu apakah data yang dikirimkan adalah Item atau tidak.
-                await updateProduct(editingId, updatedPayload as unknown as Item);
+                await axios.put(`/api/products/${editingId}`, payload);
                 triggerToast("Product updated successfully", "success");
             } else {
-                const newPayload = {
-                    title: data.title,
-                    price: Number(data.price),
-                    description: data.description,
-                    categoryId: data.category,
-                    images: parsedImages
-                };
-
-                await postProducts(newPayload as unknown as Item);
+                await axios.post("/api/products", payload);
                 triggerToast("Product added successfully", "success");
             }
 
@@ -151,7 +143,7 @@ export default function DashboardProducts() {
                 `Are you sure you want to delete this product?`,
                 "confirmation",
                 async () => {
-                    await deleteProduct(id);
+                    await axios.delete(`/api/products/${id}`);
                     await mutate();
                     triggerToast("Product deleted successfully", "success");
                 })
