@@ -36,7 +36,7 @@ export default function DashboardProducts() {
 
     const {
         data: categories = [],
-    } = useSWR<PlatziCategory[]>("api/categories", clientFetcher);
+    } = useSWR<PlatziCategory[]>("/api/categories", clientFetcher);
 
     // Inisialisasi React Hook Form
     const {
@@ -90,7 +90,7 @@ export default function DashboardProducts() {
             title: data.title,
             price: Number(data.price),
             description: data.description,
-            categoryId: data.category,
+            categoryId: Number(data.category),
             images: parsedImages
         };
 

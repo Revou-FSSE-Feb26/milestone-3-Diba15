@@ -10,7 +10,7 @@ const clientFetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Dashboard() {
     const { data: users = [] } = useSWR("api/users", clientFetcher);
-    const { data: products = [] } = useSWR("/api/products", clientFetcher);
+    const { data: products = [] } = useSWR("api/products", clientFetcher);
     const { data: categories = [] } = useSWR("api/categories", clientFetcher);
 
     const totalUsers = () => {
