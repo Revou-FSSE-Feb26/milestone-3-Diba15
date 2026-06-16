@@ -33,6 +33,20 @@ export function proxy(request: NextRequest) {
         }
     }
 
+    // Cek akses api dari aplikasi lain
+    if (pathname.startsWith("/api")) {
+        const origin = request.headers.get('origin') || request.headers.get('referer');
+        const allowedDomain = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+        // Blokir jika request datang dari aplikasi/domain lain (misal Postman atau website asing)
+        if (!origin || !origin.includes(allowedDomain)) {
+            return new NextResponse(
+                JSON.stringify({ success: false, message: 'Forbidden Access' }),
+                { status: 403, headers: { 'Content-Type': 'application/json' } }
+            );
+        }
+    }
+
     return NextResponse.next();
 }
 
@@ -41,6 +55,7 @@ export const config = {
         "/cart",
         "/dashboard/:path*",
         "/login",
-        "/register"
+        "/register",
+        "/api/:path*"
     ]
 }

@@ -17,7 +17,7 @@ async function getAuthHeader() {
 export async function GET() {
     try {
         const authHeader = await getAuthHeader();
-        const response = await axios.get(`${API_URL}/user`, { headers: authHeader });
+        const response = await axios.get(`${API_URL}/users`, { headers: authHeader });
         return NextResponse.json(response.data);
     } catch (error: unknown) {
         console.error("Error inside /api/user Route Handler:", error);
