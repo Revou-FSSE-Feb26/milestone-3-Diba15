@@ -2,14 +2,16 @@
 
 import { ShoppingCart, Users, Package } from "lucide-react";
 import useSWR from 'swr';
-import StatCard from "@/components/dashboard/StatCard"
-import { getProducts, getCategories } from "@/api";
-import { getUsers } from "@/api/auth";
+import StatCard from "@/components/dashboard/StatCard";
+
+// Fetcher standard untuk SWR di sisi client
+const clientFetcher = (url: string) => fetch(url).then((res) => res.json());
+
 
 export default function Dashboard() {
-    const { data: users = [] } = useSWR("users", getUsers);
-    const { data: products = [] } = useSWR("products", getProducts);
-    const { data: categories = [] } = useSWR("categories", getCategories);
+    const { data: users = [] } = useSWR("api/users", clientFetcher);
+    const { data: products = [] } = useSWR("/api/products", clientFetcher);
+    const { data: categories = [] } = useSWR("api/categories", clientFetcher);
 
     const totalUsers = () => {
         return users.length;

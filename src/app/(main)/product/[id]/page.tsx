@@ -3,7 +3,7 @@ import AddCartButton from "@/components/detailItem/AddCartButton";
 import CategoryPill from "@/components/ui/CategoryPill";
 import ActionButton from "@/components/home/ActionButton";
 import { Item } from "@/types/Types";
-import { getProductById, getProductsWithPagination } from "@/api/index";
+import { getProductById, getProductsWithPagination } from "@/lib/api";
 import Link from "next/link";
 import { priceFormatter } from "@/utils";
 

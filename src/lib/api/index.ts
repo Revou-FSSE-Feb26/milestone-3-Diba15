@@ -21,16 +21,6 @@ interface PaginationParams {
     categoryId?: number;
 }
 
-export const getProducts = async (): Promise<Item[]> => {
-    try {
-        const response = await publicApi.get(`/products`);
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching products:", error);
-        throw error;
-    }
-}
-
 export const getProductsWithPagination = async (
     { offset, limit, title, categoryId }: PaginationParams): Promise<Item[]> => {
     try {
@@ -55,18 +45,6 @@ export const getProductById = async (id: number): Promise<Item> => {
         return response.data;
     } catch (error) {
         console.error("Error fetching product by ID:", error);
-        throw error;
-    }
-}
-
-// Categories API
-
-export const getCategories = async () => {
-    try {
-        const response = await publicApi.get(`/categories`);
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching categories:", error);
         throw error;
     }
 }
