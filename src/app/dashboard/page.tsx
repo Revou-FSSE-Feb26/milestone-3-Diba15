@@ -3,15 +3,35 @@
 import { ShoppingCart, Users, Package } from "lucide-react";
 import useSWR from 'swr';
 import StatCard from "@/components/dashboard/StatCard";
+import { useState, useEffect } from "react";
+import { useNotif } from "@/contexts/NotifContext";
 
 // Fetcher standard untuk SWR di sisi client
-const clientFetcher = (url: string) => fetch(url).then((res) => res.json());
-
+// const clientFetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Dashboard() {
-    const { data: users = [] } = useSWR("api/users", clientFetcher);
-    const { data: products = [] } = useSWR("api/products", clientFetcher);
-    const { data: categories = [] } = useSWR("api/categories", clientFetcher);
+    // const { data: users = [] } = useSWR("api/users", clientFetcher);
+    // const { data: products = [] } = useSWR("api/products", clientFetcher);
+    // const { data: categories = [] } = useSWR("api/categories", clientFetcher);
+    const [users, setUsers] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const { triggerToast } = useNotif();
+
+    useEffect(() => {
+        fetch("api/users")
+            .then((res) => res.json())
+            .then((data) => setUsers(data))
+            .catch(() => triggerToast("Error fetching users data!", "error"));
+        fetch("api/products")
+            .then((res) => res.json())
+            .then((data) => setProducts(data))
+            .catch(() => triggerToast("Error fetching products data!", "error"));
+        fetch("api/categories")
+            .then((res) => res.json())
+            .then((data) => setCategories(data))
+            .catch(() => triggerToast("Error fetching categories data!", "error"));
+    }, []);
 
     const totalUsers = () => {
         return users.length;

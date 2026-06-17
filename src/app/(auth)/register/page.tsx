@@ -4,8 +4,8 @@ import Link from "next/link";
 import Input from "@/components/ui/form/Input";
 import { useForm, useWatch } from "react-hook-form";
 import { RegisterUser } from "@/types/Types";
-import { useCart } from "@/context/CartContext";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/contexts/UserContext";
 
 export default function Register() {
     const { control, register: registerField, handleSubmit, formState: { errors } } = useForm<RegisterUser>({
@@ -21,7 +21,7 @@ export default function Register() {
 
     // Melakukan rename 'register' dari useCart menjadi 'registerUserContext' 
     // agar tidak bertabrakan dengan 'register' milik react-hook-form
-    const { register: registerUserContext } = useCart();
+    const { register: registerUserContext } = useUser();
 
     const password = useWatch({ control, name: "password" });
 

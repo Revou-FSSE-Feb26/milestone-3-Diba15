@@ -3,7 +3,9 @@ import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import React from "react";
-import { CartProvider } from "@/context/CartContext";
+import { CartProvider } from "@/contexts/CartContext";
+import { NotifProvider } from "@/contexts/NotifContext";
+import { UserProvider } from "@/contexts/UserContext";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -26,9 +28,13 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
             suppressHydrationWarning
         >
             <body className="min-h-full flex flex-col">
-                <CartProvider>
-                    {children}
-                </CartProvider>
+                <NotifProvider>
+                    <UserProvider>
+                        <CartProvider>
+                            {children}
+                        </CartProvider>
+                    </UserProvider>
+                </NotifProvider>
             </body>
             <Script
                 src="https://kit.fontawesome.com/c0f92099a8.js"

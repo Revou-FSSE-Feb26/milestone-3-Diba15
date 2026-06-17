@@ -1,18 +1,22 @@
 "use client";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/contexts/CartContext";
 import { Item } from "@/types/Types";
 import CartButton from "@/components/cart/CartButton";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/contexts/UserContext";
+import { useNotif } from "@/contexts/NotifContext";
 
 export default function AddCartButton({ item }: { item: Item }) {
-    const { user, getCartWithId, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+    const { getCartWithId, addToCart, decreaseQuantity, removeFromCart } = useCart();
+    const { user } = useUser();
+    const { triggerToast, triggerModal } = useNotif();
     const router = useRouter();
 
     const cartItem = getCartWithId(item.id);
     const quantity = cartItem?.quantity ? cartItem?.quantity : 0;
 
     const handleAddToCart = (): void => {
-        if (user.id === 0) {
+        if (user?.id === 0) {
             router.push("/login");
             triggerToast("Login first!", "error");
             return;
@@ -22,7 +26,7 @@ export default function AddCartButton({ item }: { item: Item }) {
     }
 
     const handleRemoveFromCart = (): void => {
-        if (user.id === 0) {
+        if (user?.id === 0) {
             router.push("/login");
             triggerToast("Login first!", "error");
             return;

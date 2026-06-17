@@ -9,8 +9,8 @@ import ProductTable from "@/components/dashboard/ProductTable";
 import Input from "@/components/ui/form/Input";
 import TextArea from "@/components/ui/form/TextArea";
 import SelectInput from "@/components/ui/form/SelectInput";
-import { useCart } from "@/context/CartContext";
 import axios from "axios";
+import { useNotif } from "@/contexts/NotifContext";
 
 interface ProductFormValues {
     images: string;
@@ -25,7 +25,7 @@ const clientFetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function DashboardProducts() {
     const [editingId, setEditingId] = useState<number | null>(null)
-    const { triggerToast, triggerModal } = useCart();
+    const { triggerToast, triggerModal } = useNotif();
 
     const {
         data: products = [],

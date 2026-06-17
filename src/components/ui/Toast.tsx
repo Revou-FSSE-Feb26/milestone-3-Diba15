@@ -1,20 +1,20 @@
-import { useCart } from "@/context/CartContext";
 import { useEffect, useState } from "react";
+import { CheckCircle, XCircle, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 
 interface ToastProps {
     message: string;
     type: 'success' | 'error' | 'warning' | 'promise';
+    onClose: () => void;
 }
 
-export default function Toast({ message, type }: ToastProps) {
-    const { clearToast } = useCart();
+export default function Toast({ message, type, onClose }: ToastProps) {
     const [isAnimate, setIsAnimate] = useState(false);
 
     const handleClose = () => {
         setIsAnimate(false);
 
         setTimeout(() => {
-            clearToast();
+            onClose();
         }, 300);
     };
 
@@ -40,7 +40,7 @@ export default function Toast({ message, type }: ToastProps) {
             case 'warning':
                 return 'bg-yellow-500';
             case 'promise':
-                return 'bg-gray-500'
+                return 'bg-gray-500';
             default:
                 return 'bg-gray-500';
         }
@@ -49,26 +49,28 @@ export default function Toast({ message, type }: ToastProps) {
     const iconType = () => {
         switch (type) {
             case 'success':
-                return 'fa-solid fa-check';
+                return <CheckCircle />;
             case 'error':
-                return 'fa-solid fa-times';
+                return <XCircle />;
             case 'warning':
-                return 'fa-solid fa-exclamation';
+                return <AlertCircle />;
             case 'promise':
-                return 'fa-solid fa-spinner';
+                return <AlertTriangle />;
             default:
-                return 'fa-solid fa-info';
+                return <Info />;
         }
     };
 
     return (
         <div
-            className={`flex justify-between items-center fixed top-4 right-4 z-999 ${bgColor()} text-white px-4 py-2 rounded-lg shadow-lg 
+            className={`flex justify-between items-center w-full ${bgColor()} text-white px-4 py-2 rounded-lg shadow-lg 
             transition-all duration-300 ease-in-out transform
             ${isAnimate ? "translate-x-0 opacity-100" : "translate-x-12 opacity-0"}`}
         >
-            <i className={`${iconType} mr-2`}></i>
-            <span>{message}</span>
+            <div className="flex gap-2 items-center">
+                {iconType()}
+                <span className="truncate max-w-xs">{message}</span>
+            </div>
             <i className="fas fa-times ml-4 cursor-pointer hover:opacity-70 transition-opacity" onClick={handleClose}></i>
         </div>
     );
