@@ -1,12 +1,14 @@
 "use client";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/contexts/CartContext";
 import CartCard from "@/components/cart/CartCard";
 import Link from "next/link";
 import { CartItem } from "@/types/Types";
 import { cartTotalPrice, totalCartItems } from "@/utils";
+import { useNotif } from "@/contexts/NotifContext";
 
 export default function CartPage() {
-    const { getCart, clearCart, addToCart, decreaseQuantity, removeFromCart, triggerToast, triggerModal } = useCart();
+    const { getCart, clearCart, addToCart, decreaseQuantity, removeFromCart } = useCart();
+    const { triggerToast, triggerModal } = useNotif();
 
     const cart = getCart();
 

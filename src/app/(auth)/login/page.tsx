@@ -5,7 +5,7 @@ import Link from "next/link";
 import { LoginProps } from "@/types/Types";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/context/CartContext";
+import { useUser } from "@/contexts/UserContext";
 
 export default function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm<LoginProps>({
@@ -14,7 +14,7 @@ export default function Login() {
             password: "",
         }
     });
-    const { login } = useCart();
+    const { login } = useUser();
     const router = useRouter();
 
     const onSubmit = async (data: LoginProps) => {

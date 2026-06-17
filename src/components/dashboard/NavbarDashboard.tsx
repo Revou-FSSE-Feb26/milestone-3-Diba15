@@ -4,13 +4,13 @@ import Brand from "@/components/ui/Brand";
 import { LogIn, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { useUser } from "@/contexts/UserContext";
 
 export default function NavbarDashboard() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const { user, logout } = useCart();
+    const { user, logout } = useUser();
     const router = useRouter();
 
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -63,13 +63,13 @@ export default function NavbarDashboard() {
                     <div className="flex gap-2 relative" ref={dropdownRef}>
                         <div className="flex items-center cursor-pointer select-none" onClick={toggleDropdown}>
                             <Image
-                                src={user.avatar || "https://picsum.photos/200"}
+                                src={user?.avatar || "https://picsum.photos/200"}
                                 alt="avatar"
                                 width={32}
                                 height={32}
                                 className="rounded-full border border-white/20"
                             />
-                            <span className="ml-2 font-medium">{user.name}</span>
+                            <span className="ml-2 font-medium">{user?.name}</span>
                             <ChevronDown className="ml-1 h-4 w-4 transition-transform duration-200" style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
                         </div>
 

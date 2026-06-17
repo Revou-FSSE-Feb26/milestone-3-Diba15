@@ -1,4 +1,4 @@
-import { useCart } from "@/context/CartContext";
+import { useNotif } from "@/contexts/NotifContext";
 import { useEffect, useState } from "react";
 
 interface ToastProps {
@@ -7,7 +7,7 @@ interface ToastProps {
 }
 
 export default function Toast({ message, type }: ToastProps) {
-    const { clearToast } = useCart();
+    const { clearToast } = useNotif();
     const [isAnimate, setIsAnimate] = useState(false);
 
     const handleClose = () => {
