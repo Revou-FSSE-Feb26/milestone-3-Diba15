@@ -26,9 +26,16 @@ import Modal from "@/components/ui/Modal";
 //     }
 // }
 
+interface ToastItem {
+    id: string;
+    message: string;
+    type: "success" | "error" | "warning";
+}
+
 interface NotifContextType {
     triggerToast: (message: string, type: "success" | "error" | "warning") => void;
     clearToast: () => void;
+    removeToast: (id: string) => void;
     triggerModal: (message: string, type: "confirmation" | "alert", yesAction?: () => void, noAction?: () => void) => void;
     clearModal: () => void;
 }
@@ -36,10 +43,7 @@ interface NotifContextType {
 const NotifContext = createContext<NotifContextType | null>(null);
 
 export function NotifProvider({ children }: { children: ReactNode }) {
-    const [showToast, setShowToast] = useState(false);
-    const [message, setMessage] = useState("");
-    const [type, setType] = useState<"success" | "error" | "warning">("success");
-    const toastTimeout = useRef<NodeJS.Timeout | null>(null);
+    const [toasts, setToasts] = useState<ToastItem[]>([]);
     const [modalConfig, setModalConfig] = useState({
         showModal: false,
         modalMsg: '',
@@ -49,16 +53,20 @@ export function NotifProvider({ children }: { children: ReactNode }) {
     });
 
     const triggerToast = (message: string, type: 'success' | 'error' | 'warning') => {
-        setMessage(message);
-        setType(type);
-        setShowToast(true);
+        const newToast: ToastItem = {
+            id: crypto.randomUUID(),
+            message,
+            type,
+        };
 
-        if (toastTimeout.current) clearTimeout(toastTimeout.current);
+        setToasts((prev) => {
+            const next = [...prev, newToast];
+            return next.length > 3 ? next.slice(next.length - 3) : next;
+        });
+    };
 
-        toastTimeout.current = setTimeout(() => {
-            setShowToast(false);
-            toastTimeout.current = null;
-        }, 3000);
+    const removeToast = (id: string) => {
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
     };
 
     const triggerModal = (msg: string, modalType: 'confirmation' | 'alert', yesAction?: () => void, noAction?: () => void) => {
@@ -82,19 +90,19 @@ export function NotifProvider({ children }: { children: ReactNode }) {
     };
 
     const clearToast = () => {
-        setShowToast(false);
-        if (toastTimeout.current) {
-            clearTimeout(toastTimeout.current);
-            toastTimeout.current = null;
-        }
-    }
+        setToasts([]);
+    };
 
     return (
         <NotifContext.Provider value={{
-            triggerToast, clearToast, triggerModal, clearModal
+            triggerToast, clearToast, removeToast, triggerModal, clearModal
         }}>
             {children}
-            {showToast && <Toast message={message} type={type} />}
+            <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+                {toasts.map((toast) => (
+                    <Toast key={toast.id} id={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
+                ))}
+            </div>
             {modalConfig.showModal && <Modal msg={modalConfig.modalMsg} modalType={modalConfig.modalType} yesAction={modalConfig.yesAction} noAction={modalConfig.noAction} />}
         </NotifContext.Provider>
     )
