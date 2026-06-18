@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { CheckCircle, XCircle, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 
 interface ToastProps {
+    id: string;
     message: string;
     type: 'success' | 'error' | 'warning' | 'promise';
     onClose: () => void;
 }
 
-export default function Toast({ message, type, onClose }: ToastProps) {
+export default function Toast({ id, message, type, onClose }: ToastProps) {
     const [isAnimate, setIsAnimate] = useState(false);
 
     const handleClose = () => {
@@ -62,7 +63,7 @@ export default function Toast({ message, type, onClose }: ToastProps) {
     };
 
     return (
-        <div
+        <div id={id}
             className={`flex justify-between items-center w-full ${bgColor()} text-white px-4 py-2 rounded-lg shadow-lg 
             transition-all duration-300 ease-in-out transform
             ${isAnimate ? "translate-x-0 opacity-100" : "translate-x-12 opacity-0"}`}
