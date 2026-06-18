@@ -77,11 +77,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, [cart]);
 
     const getCartWithId = (id: number) => {
-        return cart.find(item => item.id === id && item.userId === user?.id);
+        return cart.find(item => item.id === id && item.userId === user?.id && item.status === false);
     }
 
     const getCart = () => {
-        return cart.filter(item => item.userId === user?.id);
+        return cart.filter(item => item.userId === user?.id && item.status === false);
     }
 
     /**
@@ -95,11 +95,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
      * @returns void
      */
     const addToCart = (item: Item) => {
-        if (!user) {
-            return 0;
-        }
+        if (!user) return;
 
         setCart((prevCart) => {
+            const existingItem = prevCart.find(cartItem => cartItem.id === item.id && cartItem.userId === user?.id && cartItem.status === false);
+            if (existingItem) {
+                return prevCart.map(cartItem =>
+                    cartItem.id === item.id
+                        ? { ...cartItem, quantity: cartItem.quantity + 1 }
+                        : cartItem
+                );
+            }
             return [...prevCart, { ...item, quantity: 1, userId: user?.id, status: false }];
         });
         triggerToast(`${item.title} added to cart`, "success");
@@ -115,7 +121,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
      * @returns void
      */
     const removeFromCart = (itemId: number) => {
-        setCart((prevCart) => prevCart.filter(item => item.id !== itemId && item.userId === user?.id));
+        setCart((prevCart) => prevCart.filter(item => item.id !== itemId && item.userId === user?.id && item.status === false));
     };
 
     /**
@@ -128,12 +134,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
      * @returns void
      */
     const decreaseQuantity = (itemId: number) => {
-        if (!user) {
-            return 0;
-        }
+        if (!user) return;
 
         setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId && item.userId === user?.id ? { ...item, quantity: item.quantity - 1 } : item);
+            return prevCart.map(item => item.id === itemId && item.userId === user?.id && item.status === false ? { ...item, quantity: item.quantity - 1 } : item);
         });
     };
 
@@ -148,12 +152,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
      * @returns void
      */
     const updateQuantity = (itemId: number, quantity: number) => {
-        if (!user) {
-            return 0;
-        }
+        if (!user) return;
 
         setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId && item.userId === user?.id ? { ...item, quantity } : item);
+            return prevCart.map(item => item.id === itemId && item.userId === user?.id && item.status === false ? { ...item, quantity } : item);
         });
     };
 
@@ -164,13 +166,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
      * @returns void
      */
     const clearCart = () => {
-        if (!user) {
-            return 0;
-        }
+        if (!user) return;
 
         setCart((prevCart) => {
-            return prevCart.filter(item => item.userId !== user?.id);
+            return prevCart.map(item => item.userId === user?.id && item.status === false ? { ...item, status: true } : item);
         });
+
         localStorage.removeItem("cart");
         localStorage.setItem("cart", JSON.stringify(cart));
     };

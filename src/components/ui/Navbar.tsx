@@ -84,6 +84,13 @@ export default function Navbar() {
                                     Dashboard
                                 </Link>
                             )}
+                            <Link
+                                href="/profile"
+                                onClick={() => setIsDropdownOpen(false)}
+                                className="w-full text-left py-1 hover:text-primary transition-colors"
+                            >
+                                Profile
+                            </Link>
                             <button
                                 onClick={() => { handleLogout(); setIsDropdownOpen(false); }}
                                 className="w-full text-left py-1 text-rose-500 hover:text-rose-600 font-medium transition-colors cursor-pointer"

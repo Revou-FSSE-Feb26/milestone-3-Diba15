@@ -1,6 +1,6 @@
-export default function CartButton({ handleAddToCart, handleRemoveFromCart, itemCount }: { handleAddToCart: () => void; handleRemoveFromCart: () => void; itemCount: number }) {
+export default function CartButton({ handleAddToCart, handleRemoveFromCart, itemCount, status }: { handleAddToCart: () => void; handleRemoveFromCart: () => void; itemCount: number; status: boolean }) {
 
-    if (itemCount > 0) {
+    if (itemCount > 0 && !status) {
         return (
             <>
                 <div className={"flex flex-row gap-2 items-center"}>

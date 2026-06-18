@@ -21,6 +21,7 @@ export interface Item {
 export interface CartItem extends Item {
     userId: number;
     quantity: number;
+    status: boolean;
 }
 
 // User Types

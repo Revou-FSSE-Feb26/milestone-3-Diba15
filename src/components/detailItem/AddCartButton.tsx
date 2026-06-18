@@ -14,6 +14,7 @@ export default function AddCartButton({ item }: { item: Item }) {
 
     const cartItem = getCartWithId(item.id);
     const quantity = cartItem?.quantity ? cartItem?.quantity : 0;
+    const status = cartItem?.status ? cartItem?.status : false;
 
     const handleAddToCart = (): void => {
         if (user?.id === 0) {
@@ -48,6 +49,6 @@ export default function AddCartButton({ item }: { item: Item }) {
     }
 
     return (
-        <CartButton handleAddToCart={() => handleAddToCart()} handleRemoveFromCart={() => handleRemoveFromCart()} itemCount={quantity} />
+        <CartButton handleAddToCart={() => handleAddToCart()} handleRemoveFromCart={() => handleRemoveFromCart()} itemCount={quantity} status={status} />
     );
 }
