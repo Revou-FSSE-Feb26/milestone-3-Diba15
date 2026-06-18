@@ -28,7 +28,6 @@ export default function CartPage() {
 
     const handleAddToCart = (item: CartItem) => {
         addToCart(item);
-        triggerToast(`${item.title} added to cart`, "success");
     };
 
     const checkOut = () => {
