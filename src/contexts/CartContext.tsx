@@ -39,10 +39,9 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
 import { Item, CartItem, Me, LoginProps, RegisterUser } from "@/types/Types";
-import useSWR from "swr";
-import axios from "axios";
 import { useNotif } from "@/contexts/NotifContext";
 import { useUser } from "./UserContext";
+
 
 export interface CartContextType {
     cart: CartItem[];
@@ -97,8 +96,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
      */
     const addToCart = (item: Item) => {
         if (!user) {
-            triggerToast("Please log in to add items to cart", "error");
-            return;
+            return 0;
         }
 
         setCart((prevCart) => {
@@ -112,7 +110,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
             return [...prevCart, { ...item, quantity: 1, userId: user?.id }];
         });
-        triggerToast("Item ditambahkan ke keranjang", "success");
+        triggerToast(`${item.title} added to cart`, "success");
     };
 
     /**
@@ -139,8 +137,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
      */
     const decreaseQuantity = (itemId: number) => {
         if (!user) {
-            triggerToast("Please log in First", "error");
-            return;
+            return 0;
         }
 
         setCart((prevCart) => {
@@ -160,8 +157,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
      */
     const updateQuantity = (itemId: number, quantity: number) => {
         if (!user) {
-            triggerToast("Please log in First!", "error");
-            return;
+            return 0;
         }
 
         setCart((prevCart) => {
@@ -177,8 +173,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
      */
     const clearCart = () => {
         if (!user) {
-            triggerToast("Please log in First!", "error");
-            return;
+            return 0;
         }
 
         setCart((prevCart) => {
@@ -186,7 +181,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         });
         localStorage.removeItem("cart");
         localStorage.setItem("cart", JSON.stringify(cart));
-        triggerToast("Keranjang berhasil dikosongkan", "success");
     };
 
     return (
