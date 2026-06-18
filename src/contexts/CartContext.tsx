@@ -100,15 +100,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
 
         setCart((prevCart) => {
-            const existingItem = prevCart.find(cartItem => cartItem.id === item.id && cartItem.userId === user?.id);
-            if (existingItem) {
-                return prevCart.map(cartItem =>
-                    cartItem.id === item.id
-                        ? { ...cartItem, quantity: cartItem.quantity + 1 }
-                        : cartItem
-                );
-            }
-            return [...prevCart, { ...item, quantity: 1, userId: user?.id }];
+            return [...prevCart, { ...item, quantity: 1, userId: user?.id, status: false }];
         });
         triggerToast(`${item.title} added to cart`, "success");
     };
