@@ -39,12 +39,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const {
         data: profile,
         mutate: mutateProfile,
+        error
     } = useSWR<Me>(
         isLoggedIn ? "/api/auth/profile" : null,
         clientFetcher
     );
 
     const user = profile ?? DEFAULT_USER;
+
+    useEffect(() => {
+        // Jika SWR mendeteksi error dan itu adalah error 401 (Unauthorized)
+        if (error && axios.isAxiosError(error)) {
+            if (error.response?.status === 401) {
+                console.log("Sesi berakhir di latar belakang, membersihkan klien...");
+
+                // 1. Hapus memori palsu dari browser
+                localStorage.removeItem("isLoggedIn");
+                setIsLoggedIn(false);
+
+                // 2. Beritahu pengguna
+                triggerToast("Sesi Anda telah berakhir, silakan login kembali.", "warning");
+            }
+        }
+    }, [error, triggerToast]);
 
     const register = useCallback(async (data: RegisterUser) => {
         try {

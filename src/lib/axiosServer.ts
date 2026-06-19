@@ -33,27 +33,19 @@ axiosServer.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            // 🚀 TAMBAHKAN LOG INI
-            console.log("=== INTERCEPTOR: Access Token expired, mencoba refresh... ===");
-
             try {
                 const cookieStore = await cookies();
                 const refreshToken = cookieStore.get("refreshToken")?.value;
 
                 if (!refreshToken) {
-                    console.log("=== INTERCEPTOR: Gagal, Refresh Token tidak ditemukan ===");
                     throw new Error("Tidak ada refresh token");
                 }
-                // Hit API eksternal untuk refresh token
                 const refreshRes = await axios.post(`${API_URL}/auth/refresh-token`, {
                     refreshToken: refreshToken,
                 });
 
                 const newAccessToken = refreshRes.data.access_token;
                 const newRefreshToken = refreshRes.data.refresh_token || refreshToken;
-
-                // 🚀 TAMBAHKAN LOG INI
-                console.log("=== INTERCEPTOR: Refresh Token BERHASIL, memperbarui cookie ===");
 
                 const isProd = process.env.NODE_ENV === "production";
                 const baseCookieOptions = {
@@ -69,7 +61,6 @@ axiosServer.interceptors.response.use(
                 return axiosServer(originalRequest);
 
             } catch (refreshError) {
-                console.log("=== INTERCEPTOR: Refresh Token GAGAL/EXPIRED ===");
                 // Jika refresh token juga gagal/expired, hapus semua sesi
                 const cookieStore = await cookies();
                 cookieStore.delete("accessToken");
