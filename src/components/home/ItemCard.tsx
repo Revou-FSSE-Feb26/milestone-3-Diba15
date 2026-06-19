@@ -3,11 +3,12 @@
 import { Item } from "@/types/Types";
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import AddCartButton from "@/components/detailItem/AddCartButton";
 import { priceFormatter } from "@/utils";
 import CategoryPill from "@/components/ui/CategoryPill";
 
-export default function ItemCard({ item }: { item: Item }) {
+function ItemCard({ item }: { item: Item }) {
     const { id, title, price, images, category }: Item = item;
 
     return (
@@ -35,3 +36,8 @@ export default function ItemCard({ item }: { item: Item }) {
         </div>
     );
 }
+
+export default memo(ItemCard, (prevProps, nextProps) => {
+    // Return true jika props sama (jangan re-render), false jika props berbeda (re-render)
+    return prevProps.item.id === nextProps.item.id;
+});

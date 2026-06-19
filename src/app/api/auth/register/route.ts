@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import axiosServer from "@/lib/axiosServer"
 
 export async function POST(request: Request) {
     try {
@@ -18,7 +17,7 @@ export async function POST(request: Request) {
             avatar: "https://picsum.photos/800"
         };
 
-        const response = await axios.post(`${API_URL}/users`, newUser);
+        const response = await axiosServer.post(`/users`, newUser);
         return NextResponse.json({ success: true, data: response.data });
     } catch (error: unknown) {
         console.error("Error registering user:", error);

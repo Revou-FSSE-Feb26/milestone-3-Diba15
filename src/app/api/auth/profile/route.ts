@@ -1,30 +1,10 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import axiosServer from "@/lib/axiosServer";
 import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined in environment variables.");
-}
 
 export async function GET() {
     try {
-        const cookieStore = await cookies();
-        const accessToken = cookieStore.get("accessToken")?.value;
-
-        if (!accessToken) {
-            return NextResponse.json(
-                { error: "Unauthorized: No access token found" },
-                { status: 401 }
-            );
-        }
-
-        const response = await axios.get(`${API_URL}/auth/profile`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
+        const response = await axiosServer.get(`/auth/profile`);
 
         return NextResponse.json(response.data);
 

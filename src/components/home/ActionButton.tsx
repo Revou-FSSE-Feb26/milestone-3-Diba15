@@ -5,9 +5,9 @@ import Link from "next/link";
 import { totalCartItems } from "@/utils";
 
 export default function ActionButton() {
-    const { getCart } = useCart();
+    const { activeCart } = useCart();
 
-    const cart = getCart();
+    const cart = activeCart;
     const totalItems = totalCartItems(cart);
 
     return (

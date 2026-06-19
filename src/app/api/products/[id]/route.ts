@@ -1,18 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import axios from "axios";
-import { cookies } from "next/headers";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined.");
-}
-
-async function getAuthHeader() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("accessToken")?.value;
-    return token ? { Authorization: `Bearer ${token}` } : {};
-}
+import axiosServer from "@/lib/axiosServer";
 
 export async function GET(
     request: NextRequest,
@@ -21,7 +9,7 @@ export async function GET(
     try {
         const { id } = await params;
 
-        const response = await axios.get(`${API_URL}/products/${id}`);
+        const response = await axiosServer.get(`/products/${id}`);
         return NextResponse.json(response.data);
     } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
@@ -38,10 +26,9 @@ export async function PUT(
 ) {
     try {
         const body = await request.json();
-        const headers = await getAuthHeader();
         const { id } = await params; 
 
-        const response = await axios.put(`${API_URL}/products/${id}`, body, { headers });
+        const response = await axiosServer.put(`/products/${id}`, body);
         return NextResponse.json({ success: true, product: response.data });
     } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
@@ -57,10 +44,9 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const headers = await getAuthHeader();
         const { id } = await params;
 
-        await axios.delete(`${API_URL}/products/${id}`, { headers });
+        await axiosServer.delete(`/products/${id}`);
         return NextResponse.json({ success: true });
     } catch (error: unknown) {
         if (axios.isAxiosError(error)) {

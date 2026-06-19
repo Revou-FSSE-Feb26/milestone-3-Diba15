@@ -7,11 +7,11 @@ import { useCart } from "@/contexts/CartContext";
 
 export default function Profile() {
     const { user } = useUser();
-    const { getCart } = useCart();
+    const { activeCart } = useCart();
 
     if (!user) return null;
 
-    const cart = getCart();
+    const cart = activeCart;
 
     return (
         <>

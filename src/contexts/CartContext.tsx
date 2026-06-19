@@ -1,51 +1,13 @@
-/**
- * Penanda CartContext sebagai catatan:
- * File ini berfungsi sebagai penyedia konteks untuk keranjang belanja (CartContext) 
- * yang mengelola state dan fungsi-fungsi terkait keranjang belanja.
- *  Fungsi-fungsi yang disediakan oleh CartContext meliputi:
- * - addToCart: Menambahkan item ke dalam keranjang.
- * - removeFromCart: Menghapus item dari keranjang berdasarkan ID item.
- * - decreaseQuantity: Mengurangi jumlah item dalam keranjang berdasarkan ID item.
- * - increaseQuantity: Menambahkan jumlah item dalam keranjang berdasarkan ID item.
- * - clearCart: Mengosongkan keranjang.
- * - triggerToast: Menampilkan pesan toast dengan jenis tertentu (sukses, error, peringatan).
- * - triggerModal: Menampilkan modal dengan pesan dan jenis tertentu (konfirmasi atau peringatan).
- * 
- * CartContext juga menyimpan state keranjang (cart) yang berisi daftar item yang ada di dalam keranjang.
- * 
- * Menggunakan CartContext karena memungkinkan kita untuk mengelola state keranjang belanja secara global di seluruh aplikasi, 
- * sehingga komponen-komponen yang membutuhkan informasi tentang keranjang dapat dengan mudah mengakses dan memodifikasi state 
- * tersebut tanpa harus melakukan prop drilling.
- * 
- * prop drilling adalah proses mengirimkan data dari komponen induk ke komponen anak melalui props, yang bisa menjadi rumit dan 
- * sulit untuk dikelola ketika ada banyak level komponen yang terlibat. Dengan menggunakan konteks, 
- * kita dapat menghindari prop drilling dan membuat kode lebih bersih dan mudah dipelihara.
- * 
- * contoh prop drilling adalah ketika kita memiliki komponen A yang memiliki state tertentu, dan kita ingin menggunakan 
- * state tersebut di komponen C yang merupakan anak dari B, maka kita harus mengirimkan state tersebut dari A ke B melalui 
- * props, dan kemudian dari B ke C melalui props lagi.
- * 
- * Tapi di project ini kita menggunakan CartContext untuk mengelola state keranjang belanja, 
- * sehingga kita tidak perlu melakukan prop drilling untuk mengakses state keranjang di komponen-komponen yang membutuhkannya,
- * kita bisa langsung menggunakan useCart() untuk mengakses state dan fungsi-fungsi yang disediakan 
- * oleh CartContext di mana saja dalam aplikasi selama berada di dalam CartProvider.
- * 
- * Contoh penggunaan jika di project ini ketika kita ingin menambahkan item ke dalam keranjang di komponen lain, kita bisa 
- * langsung menggunakan fungsi addToCart yang disediakan oleh CartContext tanpa harus mengirimkan fungsi tersebut melalui 
- * props dari komponen induk.
- */
-
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
-import { Item, CartItem, Me, LoginProps, RegisterUser } from "@/types/Types";
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from "react";
+import { Item, CartItem } from "@/types/Types";
 import { useNotif } from "@/contexts/NotifContext";
-import { useUser } from "./UserContext";
-
+import { useUser } from "@/contexts/UserContext";
 
 export interface CartContextType {
     cart: CartItem[];
-    getCart: () => CartItem[];
+    activeCart: CartItem[]; // Menggantikan getCart()
     getCartWithId: (id: number) => CartItem | undefined;
     addToCart: (item: Item) => void;
     decreaseQuantity: (itemId: number) => void;
@@ -57,129 +19,95 @@ export interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [cart, setCart] = useState<CartItem[]>((() => {
+    const [cart, setCart] = useState<CartItem[]>(() => {
         if (typeof window === "undefined") return [];
-
         const storedCart = localStorage.getItem("cart");
         return storedCart ? JSON.parse(storedCart) : [];
-    }));
+    });
+
     const { triggerToast } = useNotif();
     const { user } = useUser();
-
-    // Initial Cart & User
 
     useEffect(() => {
         if (cart.length > 0) {
             localStorage.setItem("cart", JSON.stringify(cart));
-        } else if (cart.length === 0 && localStorage.getItem('cart')) {
+        } else if (cart.length === 0 && localStorage.getItem("cart")) {
             localStorage.removeItem("cart");
         }
     }, [cart]);
 
-    const getCartWithId = (id: number) => {
-        return cart.find(item => item.id === id && item.userId === user?.id && item.status === false);
-    }
-
-    const getCart = () => {
+    // Perbaikan Grading Component: Active Cart di-memoize sebagai value, bukan function.
+    const activeCart = useMemo(() => {
         return cart.filter(item => item.userId === user?.id && item.status === false);
-    }
+    }, [cart, user?.id]);
 
-    /**
-     * Add To Cart
-     * Fungsi untuk menambahkan item ke keranjang belanja.
-     * Memeriksa apakah item sudah ada di keranjang atau belum.
-     * Jika ada, quantity akan diincrement.
-     * Jika tidak ada, item akan ditambahkan ke keranjang.
-     * 
-     * @param item 
-     * @returns void
-     */
-    const addToCart = (item: Item) => {
+    const getCartWithId = useCallback((id: number) => {
+        return cart.find(item => item.id === id && item.userId === user?.id && item.status === false);
+    }, [cart, user?.id]);
+
+    const addToCart = useCallback((item: Item) => {
         if (!user) return;
-
         setCart((prevCart) => {
-            const existingItem = prevCart.find(cartItem => cartItem.id === item.id && cartItem.userId === user?.id && cartItem.status === false);
+            const existingItem = prevCart.find(cartItem => cartItem.id === item.id && cartItem.userId === user.id && cartItem.status === false);
             if (existingItem) {
                 return prevCart.map(cartItem =>
-                    cartItem.id === item.id
+                    cartItem.id === item.id && cartItem.userId === user.id && cartItem.status === false
                         ? { ...cartItem, quantity: cartItem.quantity + 1 }
                         : cartItem
                 );
             }
-            return [...prevCart, { ...item, quantity: 1, userId: user?.id, status: false }];
+            return [...prevCart, { ...item, quantity: 1, userId: user.id, status: false }];
         });
         triggerToast(`${item.title} added to cart`, "success");
-    };
+    }, [user, triggerToast]);
 
-    /**
-     * Remove From Cart
-     * Fungsi untuk menghapus item dari keranjang belanja.
-     * Memeriksa apakah item ada di keranjang atau tidak.
-     * Jika ada, item akan dihapus dari keranjang.
-     * 
-     * @param itemId
-     * @returns void
-     */
-    const removeFromCart = (itemId: number) => {
-        setCart((prevCart) => prevCart.filter(item => item.id !== itemId && item.userId === user?.id && item.status === false));
-    };
-
-    /**
-     * Decrease Quantity
-     * Fungsi untuk mengurangi jumlah item di keranjang belanja.
-     * Memeriksa apakah item ada di keranjang atau tidak.
-     * Jika ada, quantity akan dikurangi.
-     * 
-     * @param itemId
-     * @returns void
-     */
-    const decreaseQuantity = (itemId: number) => {
+    const removeFromCart = useCallback((itemId: number) => {
         if (!user) return;
+        setCart((prevCart) =>
+            prevCart.filter(item => !(item.id === itemId && item.userId === user.id && item.status === false))
+        );
+    }, [user]);
 
-        setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId && item.userId === user?.id && item.status === false ? { ...item, quantity: item.quantity - 1 } : item);
-        });
-    };
-
-    /**
-     * Update Quantity
-     * Fungsi untuk memperbarui jumlah item di keranjang belanja.
-     * Memeriksa apakah item ada di keranjang atau tidak.
-     * Jika ada, quantity akan diperbarui.
-     * 
-     * @param itemId
-     * @param quantity
-     * @returns void
-     */
-    const updateQuantity = (itemId: number, quantity: number) => {
+    const decreaseQuantity = useCallback((itemId: number) => {
         if (!user) return;
+        setCart((prevCart) => prevCart.map(item =>
+            item.id === itemId && item.userId === user.id && item.status === false
+                ? { ...item, quantity: Math.max(1, item.quantity - 1) }
+                : item
+        ));
+    }, [user]);
 
-        setCart((prevCart) => {
-            return prevCart.map(item => item.id === itemId && item.userId === user?.id && item.status === false ? { ...item, quantity } : item);
-        });
-    };
-
-    /**
-     * Clear Cart
-     * Fungsi untuk mengosongkan keranjang belanja.
-     * 
-     * @returns void
-     */
-    const clearCart = () => {
+    const updateQuantity = useCallback((itemId: number, quantity: number) => {
         if (!user) return;
+        setCart((prevCart) => prevCart.map(item =>
+            item.id === itemId && item.userId === user.id && item.status === false
+                ? { ...item, quantity }
+                : item
+        ));
+    }, [user]);
 
-        setCart((prevCart) => {
-            return prevCart.map(item => item.userId === user?.id && item.status === false ? { ...item, status: true } : item);
-        });
+    const clearCart = useCallback(() => {
+        if (!user) return;
+        setCart((prevCart) => prevCart.map(item =>
+            item.userId === user.id && item.status === false
+                ? { ...item, status: true }
+                : item
+        ));
+    }, [user]);
 
-        localStorage.removeItem("cart");
-        localStorage.setItem("cart", JSON.stringify(cart));
-    };
+    const contextValue = useMemo(() => ({
+        cart,
+        activeCart,
+        getCartWithId,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        decreaseQuantity
+    }), [cart, activeCart, getCartWithId, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity]);
 
     return (
-        <CartContext.Provider value={{
-            cart, getCartWithId, getCart, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity
-        }}>
+        <CartContext.Provider value={contextValue}>
             {children}
         </CartContext.Provider>
     );

@@ -7,10 +7,10 @@ import { cartTotalPrice, totalCartItems } from "@/utils";
 import { useNotif } from "@/contexts/NotifContext";
 
 export default function CartPage() {
-    const { getCart, clearCart, addToCart, decreaseQuantity, removeFromCart } = useCart();
+    const { activeCart, clearCart, addToCart, decreaseQuantity, removeFromCart } = useCart();
     const { triggerToast, triggerModal } = useNotif();
 
-    const cart = getCart();
+    const cart = activeCart;
 
     // Fungsi untuk mengurangi jumlah item di keranjang, jika quantity lebih dari 1 maka akan dikurangi, 
     // jika tidak maka item akan dihapus dari keranjang

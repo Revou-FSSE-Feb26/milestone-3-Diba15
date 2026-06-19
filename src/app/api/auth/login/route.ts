@@ -1,40 +1,69 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import axiosServer from "@/lib/axiosServer";
 import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function POST(request: Request) {
     try {
-        const { email, password } = await request.json();
+        // 1. Validasi Input Awal
+        const body = await request.json();
+        const { email, password } = body;
 
-        const loginResponse = await axios.post(`${API_URL}/auth/login`, { email, password });
+        if (!email || !password) {
+            return NextResponse.json({ error: "Email dan password wajib diisi" }, { status: 400 });
+        }
+
+        // 2. Request Login ke Backend
+        const loginResponse = await axiosServer.post(`/auth/login`, { email, password });
         const { access_token, refresh_token } = loginResponse.data;
 
-        const profileResponse = await axios.get(`${API_URL}/auth/profile`, {
+        // 3. Ambil Data Profile
+        const profileResponse = await axiosServer.get(`/auth/profile`, {
             headers: { Authorization: `Bearer ${access_token}` }
         });
         const userData = profileResponse.data;
 
+        // 4. Validasi Role (Gunakan 403 Forbidden karena kredensial benar tapi akses ditolak)
+        const VALID_ROLES = ["admin", "user", "customer"];
+        if (!VALID_ROLES.includes(userData.role)) {
+            return NextResponse.json({ error: "Akses ditolak: Role tidak valid" }, { status: 403 });
+        }
+
+        // 5. Konfigurasi dan Set Cookies (DRY pattern)
         const cookieStore = await cookies();
         const isProd = process.env.NODE_ENV === "production";
 
+        const baseCookieOptions = {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: "strict" as const, // As const untuk memastikan tipe literal bagi TypeScript
+            path: "/"
+        };
+
         cookieStore.set("refreshToken", refresh_token, {
-            httpOnly: true, secure: isProd, sameSite: "strict", maxAge: 60 * 60 * 24 * 7, path: "/"
+            ...baseCookieOptions, maxAge: 60 * 60 * 24 * 7 // 7 Hari
         });
         cookieStore.set("accessToken", access_token, {
-            httpOnly: true, secure: isProd, sameSite: "strict", maxAge: 60 * 60, path: "/"
+            ...baseCookieOptions, maxAge: 60 * 60 // 1 Jam
         });
         cookieStore.set("user_role", userData.role, {
-            httpOnly: true, secure: isProd, sameSite: "strict", maxAge: 60 * 60 * 24 * 7, path: "/"
+            ...baseCookieOptions, maxAge: 60 * 60 * 24 * 7 // 7 Hari
         });
 
         return NextResponse.json({ success: true, user: userData });
+
     } catch (error: unknown) {
-        console.error("Error logging in user:", error);
+        console.error("Route Handler Login Error:", error);
+
+        // Menangkap error spesifik dari (dari API Eksternal)
         if (axios.isAxiosError(error)) {
-            return NextResponse.json({ error: error.response?.data?.message || "Login failed" }, { status: 401 });
+            const statusCode = error.response?.status || 500;
+            const message = error.response?.data?.message || "Error on login";
+
+            return NextResponse.json({ error: message }, { status: statusCode });
         }
-        return NextResponse.json({ error: "Kredensial tidak valid" }, { status: 401 });
+
+        // Menangkap error lain (misal: gagal parse JSON)
+        return NextResponse.json({ error: "Credentials invalid" }, { status: 400 });
     }
 }

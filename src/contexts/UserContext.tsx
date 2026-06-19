@@ -1,58 +1,40 @@
 "use client";
 
-import { createContext, useContext, useReducer, ReactNode, useState } from "react";
+import { createContext, useContext, ReactNode, useState, useEffect, useCallback, useMemo } from "react";
 import { Me, LoginProps, RegisterUser } from "@/types/Types";
 import useSWR from "swr";
 import axios from "axios";
 import { useNotif } from "@/contexts/NotifContext";
 
-// type UserAction =
-//     | { type: "LOGIN", payload: LoginProps }
-//     | { type: "LOGOUT" }
-//     | { type: "REGISTER", payload: RegisterUser }
-
-// interface UserContextType {
-//     user: Me | null;
-//     login: (data: LoginProps) => Promise<{ success: boolean } | undefined>;
-//     logout: () => void;
-//     register: (data: RegisterUser) => Promise<{ success: boolean } | undefined>;
-//     success: boolean;
-// }
-
-// function userReducer(state: UserContextType, action: UserAction): UserContextType {
-//     switch (action.type) {
-//         case "LOGIN":
-//             return { ...state, user: action.payload };
-//         case "LOGOUT":
-//             return { ...state, user: null };
-//         case "REGISTER":
-//             return { ...state, user: action.payload };
-//         default:
-//             return state;
-//     }
-// }
+// Default user object - dibuat sekali, bukan di setiap render
+const DEFAULT_USER: Me = { id: 0, name: "", email: "", role: "" };
 
 interface UserContextType {
     user: Me | null;
     success: boolean;
-    login: (data: LoginProps) => Promise<{ success: boolean } | undefined>;
+    login: (data: LoginProps) => Promise<{ success: boolean; message?: string }>;
     logout: () => void;
-    register: (data: RegisterUser) => Promise<{ success: boolean } | undefined>;
+    register: (data: RegisterUser) => Promise<{ success: boolean; message?: string }>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
 
-// Fetcher for user SWR
 const clientFetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>((() => {
-        if (typeof window === "undefined") return false;
-
-        const storedIsLoggedIn = localStorage.getItem("isLoggedIn");
-        return storedIsLoggedIn ? JSON.parse(storedIsLoggedIn) : false;
-    }));
+    // Hindari hydration mismatch SSR dengan menginisialisasi false di awal
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const { triggerToast } = useNotif();
+
+    // Sinkronisasi localStorage setelah komponen di-mount di klien
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedIsLoggedIn = localStorage.getItem("isLoggedIn");
+            if (storedIsLoggedIn === "true") {
+                setIsLoggedIn(true);
+            }
+        }
+    }, []);
 
     const {
         data: profile,
@@ -62,34 +44,33 @@ export function UserProvider({ children }: { children: ReactNode }) {
         clientFetcher
     );
 
-    const user = profile ?? { id: 0, name: "", email: "", role: "" };
+    const user = profile ?? DEFAULT_USER;
 
-    const register = async (data: RegisterUser) => {
+    const register = useCallback(async (data: RegisterUser) => {
         try {
             await axios.post("/api/auth/register", data);
             triggerToast("Register Success", "success");
-            return { success: true };
+            return { success: true, message: "Registration successful" };
         } catch (error: unknown) {
+            let errorMessage = "Registration failed";
             if (axios.isAxiosError(error)) {
-                triggerToast(error.response?.data?.message || "Registration failed", "error");
-                throw new Error(error.response?.data?.message || "Registration failed");
+                errorMessage = error.response?.data?.message || errorMessage;
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
             }
 
-            triggerToast(error instanceof Error ? error.message : "Registration failed", "error");
-            throw new Error(error instanceof Error ? error.message : "Registration failed");
+            triggerToast(errorMessage, "error");
+            return { success: false, message: errorMessage };
         }
-    }
+    }, [triggerToast]);
 
     /**
      * Login
      * Fungsi login untuk mengautentikasi pengguna.
-     * Menggunakan API loginUser, menyimpan data pengguna ke state dan localStorage,
-     * serta mengatur header Authorization untuk axios.
-     * 
-     * @param data LoginProps
-     * @returns { success: boolean, message: string }
+     * Menggunakan API login, menyimpan status sesi ke state dan localStorage.
+     * (Catatan: Header Authorization dikelola via interceptor axios di tempat lain / menggunakan cookies)
      */
-    const login = async (data: LoginProps) => {
+    const login = useCallback(async (data: LoginProps) => {
         try {
             const response = await axios.post("/api/auth/login", data);
 
@@ -102,45 +83,55 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 triggerToast("Berhasil login!", "success");
                 return { success: true, message: "Login success" };
             }
+
+            return { success: false, message: "Unsuccessful login attempt" };
+
         } catch (error: unknown) {
+            let errorMessage = "Login failed";
             if (axios.isAxiosError(error)) {
-                triggerToast(error.response?.data?.message || "Login failed", "error");
-                return { success: false, message: error.response?.data?.message || "Login failed" };
+                errorMessage = error.response?.data?.message || errorMessage;
+            } else {
+                errorMessage = "Wrong Email & Password!";
             }
 
-            triggerToast("Wrong Email & Password!", "error");
-            return { success: false, message: "Login failed" };
+            triggerToast(errorMessage, "error");
+            return { success: false, message: errorMessage };
         }
-    }
+    }, [triggerToast, mutateProfile]);
 
     /**
      * Logout
-     * Fungsi logout untuk menghapus data pengguna dari state dan localStorage,
-     * menghapus header Authorization dari axios, dan memanggil logoutUser.
-     * 
-     * @returns void
+     * Fungsi logout untuk menghapus data pengguna dari state, localStorage,
+     * dan membersihkan cache SWR.
      */
-    const logout = async () => {
+    const logout = useCallback(async () => {
         try {
             await axios.post("/api/auth/logout");
             localStorage.removeItem("isLoggedIn");
             setIsLoggedIn(false);
-            await mutateProfile(undefined, false);
+
+            await mutateProfile(undefined, { revalidate: false });
+
             triggerToast("Berhasil logout", "success");
         } catch (error) {
             console.error("Logout Context Error:", error);
+            triggerToast("Gagal memproses logout", "error");
         }
-    };
+    }, [triggerToast, mutateProfile]);
+
+    const contextValue = useMemo(() => ({
+        user,
+        success: isLoggedIn,
+        login,
+        logout,
+        register
+    }), [user, isLoggedIn, login, logout, register]);
 
     return (
-        <UserContext.Provider value={{
-            user,
-            success: isLoggedIn,
-            login, logout, register
-        }}>
+        <UserContext.Provider value={contextValue}>
             {children}
         </UserContext.Provider>
-    )
+    );
 }
 
 export function useUser() {
