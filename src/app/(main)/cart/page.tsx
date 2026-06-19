@@ -45,6 +45,7 @@ export default function CartPage() {
             type: "ADD_TO_CART",
             payload: { item, userId: user.id }
         });
+        triggerToast(`${item.title} added to cart`, "success");
     }, [dispatch, user]);
 
     const checkOut = useCallback(() => {

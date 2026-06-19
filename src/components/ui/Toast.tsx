@@ -65,7 +65,7 @@ export default function Toast({ id, message, type, onClose }: ToastProps) {
         >
             <div className="flex items-center gap-3">
                 <Icon className="h-5 w-5 shrink-0" />
-                <span className="max-w-xs text-sm font-medium leading-snug truncate">{message}</span>
+                <span className="max-w-62.5 text-sm font-medium leading-snug truncate">{message}</span>
             </div>
             
             <button 
