@@ -44,7 +44,7 @@ export default function DashboardProducts() {
         handleSubmit,
         reset,
         setValue,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<ProductFormValues>({
         defaultValues: {
             images: "",
@@ -108,7 +108,11 @@ export default function DashboardProducts() {
             resetForm()
         } catch (error) {
             console.error("Gagal menyimpan produk:", error);
-            alert("Terjadi kesalahan saat menyimpan produk. Coba lagi.");
+            if (axios.isAxiosError(error)) {
+                triggerToast(error.response?.data?.message || "Error saving product", "error");
+            } else {
+                triggerToast("Error saving product", "error");
+            }
         }
     }
 
@@ -150,8 +154,7 @@ export default function DashboardProducts() {
 
             if (editingId === id) resetForm()
         } catch (error) {
-            console.error("Gagal menghapus produk:", error);
-            alert("Terjadi kesalahan saat menghapus produk.");
+            console.error("Failed to delete product:", error);
         }
     }
 
@@ -245,9 +248,13 @@ export default function DashboardProducts() {
                             </button>
                             <button
                                 type="submit"
-                                className="rounded-xl bg-primary hover:bg-accent text-white px-6 py-2.5 text-sm font-bold shadow-sm transition-all cursor-pointer"
+                                disabled={isSubmitting}
+                                className="rounded-xl bg-primary hover:bg-accent text-white px-6 py-2.5 text-sm font-bold shadow-sm transition-all cursor-pointer disabled:cursor-not-allowed"
                             >
-                                {editingId ? "Simpan Perubahan" : "Tambah Produk"}
+                                {isSubmitting
+                                    ? "Menyimpan..."
+                                    : editingId ? "Simpan Perubahan" : "Tambah Produk"
+                                }
                             </button>
                         </div>
                     </form>

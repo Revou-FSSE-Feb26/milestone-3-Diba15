@@ -6,10 +6,10 @@ import { useUser } from "@/contexts/UserContext";
 import { useCart } from "@/contexts/CartContext";
 
 export default function Profile() {
-    const { user } = useUser();
+    const { user, success } = useUser();
     const { activeCart } = useCart();
 
-    if (!user) return null;
+    if (!success || user?.id === 0) return null;
 
     const cart = activeCart;
 
@@ -29,8 +29,8 @@ export default function Profile() {
                             height={100}
                             className="w-32 h-32 rounded-full"
                         />
-                        <h2 className="text-lg font-bold">{user.name}</h2>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <h2 className="text-lg font-bold">{user?.name}</h2>
+                        <p className="text-sm text-gray-500">{user?.email}</p>
                     </div>
                     <div className="flex flex-col items-center gap-2">
                         <h2 className="text-lg font-bold">Cart</h2>

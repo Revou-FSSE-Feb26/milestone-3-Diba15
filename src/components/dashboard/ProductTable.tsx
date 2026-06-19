@@ -1,5 +1,7 @@
+"use client";
+
 import { Item } from "@/types/Types";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Edit3, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight } from "lucide-react"
 import { priceFormatter } from "@/utils";
@@ -11,33 +13,30 @@ interface TableProps {
 }
 
 export default function ProductTable({ products, handleEdit, handleDelete }: TableProps) {
-    // State untuk Pagination
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(5)
 
-    // Menghitung jumlah halaman
     const totalPages = Math.ceil(products.length / itemsPerPage)
 
-    // Memotong array produk agar hanya menampilkan data di halaman aktif
-    const paginatedProducts = useMemo(() => {
-        const start = (currentPage - 1) * itemsPerPage
-        return products.slice(start, start + itemsPerPage)
-    }, [products, currentPage, itemsPerPage])
+    // Reaktivitas langsung untuk menjaga keamanan nilai halaman aktif
+    const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages > 0 ? totalPages : 1));
 
-    // Fungsi navigasi halaman
+    const paginatedProducts = useMemo(() => {
+        const start = (safeCurrentPage - 1) * itemsPerPage
+        return products.slice(start, start + itemsPerPage)
+    }, [products, safeCurrentPage, itemsPerPage])
+
     const goToPage = (page: number) => {
         const pageNumber = Math.max(1, Math.min(page, totalPages))
         setCurrentPage(pageNumber)
     }
 
-    // Informasi teks entry data
-    const entryStart = products.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
-    const entryEnd = Math.min(currentPage * itemsPerPage, products.length)
+    const entryStart = products.length === 0 ? 0 : (safeCurrentPage - 1) * itemsPerPage + 1
+    const entryEnd = Math.min(safeCurrentPage * itemsPerPage, products.length)
 
-    // Menghitung halaman yang akan ditampilkan (maksimal 5)
     const visiblePages = useMemo(() => {
         const maxVisiblePages = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let startPage = Math.max(1, safeCurrentPage - Math.floor(maxVisiblePages / 2));
         const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
         if (endPage - startPage + 1 < maxVisiblePages) {
@@ -48,23 +47,13 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
             { length: Math.max(0, endPage - startPage + 1) },
             (_, i) => startPage + i
         );
-    }, [currentPage, totalPages]);
-
-    // Memastikan currentPage tidak melebihi jumlah halaman, jika ada perubahan 
-    useEffect(() => {
-        if (totalPages > 0 && currentPage > totalPages) {
-            setTimeout(() => {
-                setCurrentPage(totalPages);
-            }, 0);
-        }
-    }, [currentPage, totalPages]);
+    }, [safeCurrentPage, totalPages]);
 
     return (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h3 className="font-bold text-gray-800 text-lg">Daftar Produk ({products.length})</h3>
 
-                {/* Selector jumlah data per halaman */}
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <span>Show</span>
                     <select
@@ -72,7 +61,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                         value={itemsPerPage}
                         onChange={(e) => {
                             setItemsPerPage(Number(e.target.value))
-                            setCurrentPage(1) // Reset ke halaman pertama saat ukuran halaman berubah
+                            setCurrentPage(1)
                         }}
                         className="rounded-lg border border-gray-200 bg-white px-2 py-1 focus:border-primary focus:outline-none text-xs font-bold"
                     >
@@ -102,14 +91,20 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                             <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="py-4 px-6 font-bold text-gray-900">#{product.id}</td>
                                 <td className="py-4 px-6">
-                                    {product.images && product.images.length > 0 ? (
+                                    {product.images && product.images.length > 0 && product.images[0].startsWith('http') ? (
                                         <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
                                             <Image
-                                                src={product.images[0]}
+                                                src={product.images[0].replace(/[\[\]"]/g, '')}
                                                 alt={product.title}
                                                 fill
                                                 sizes="48px"
                                                 className="object-cover w-full h-full"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                    if (e.currentTarget.parentElement) {
+                                                        e.currentTarget.parentElement.innerHTML = '<i class="fa-solid fa-image text-gray-400"></i>';
+                                                    }
+                                                }}
                                             />
                                         </div>
                                     ) : (
@@ -163,22 +158,19 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                 </table>
             </div>
 
-            {/* Pagination Footer Controls */}
             {products.length > 0 && (
                 <div className="px-6 py-4 border-t border-gray-100 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-gray-50/50">
-                    {/* Keterangan entri */}
                     <p className="text-sm text-gray-500 text-center sm:text-left">
                         Showing <span className="font-semibold text-gray-800">{entryStart}</span> to{" "}
                         <span className="font-semibold text-gray-800">{entryEnd}</span> of{" "}
                         <span className="font-semibold text-gray-800">{products.length}</span> entries
                     </p>
 
-                    {/* Tombol halaman */}
                     <div className="flex items-center justify-center gap-1.5">
                         <button
-                            onClick={() => goToPage(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="p-2 rounded-lg border cursor-pointer  border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            onClick={() => goToPage(safeCurrentPage - 1)}
+                            disabled={safeCurrentPage === 1}
+                            className="p-2 rounded-lg border cursor-pointer border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             title="Previous Page"
                         >
                             <ChevronLeft className="h-4 w-4" />
@@ -188,7 +180,7 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                             <button
                                 key={page}
                                 onClick={() => goToPage(page)}
-                                className={`w-9 h-9 rounded-lg border text-sm font-semibold transition-all cursor-pointer ${currentPage === page
+                                className={`w-9 h-9 rounded-lg border text-sm font-semibold transition-all cursor-pointer ${safeCurrentPage === page
                                     ? "bg-primary border-primary hover:bg-accent hover:border-accent text-white shadow-sm"
                                     : "border-gray-200 bg-white hover:bg-primary text-gray-600 hover:text-white"
                                     }`}
@@ -198,8 +190,8 @@ export default function ProductTable({ products, handleEdit, handleDelete }: Tab
                         ))}
 
                         <button
-                            onClick={() => goToPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
+                            onClick={() => goToPage(safeCurrentPage + 1)}
+                            disabled={safeCurrentPage === totalPages}
                             className="p-2 rounded-lg border cursor-pointer border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             title="Next Page"
                         >

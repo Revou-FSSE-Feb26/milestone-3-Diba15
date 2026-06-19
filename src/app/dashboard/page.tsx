@@ -1,49 +1,42 @@
 "use client";
 
 import { ShoppingCart, Users, Package } from "lucide-react";
-import useSWR from 'swr';
 import StatCard from "@/components/dashboard/StatCard";
 import { useState, useEffect } from "react";
 import { useNotif } from "@/contexts/NotifContext";
-
-// Fetcher standard untuk SWR di sisi client
-// const clientFetcher = (url: string) => fetch(url).then((res) => res.json());
+import { Item, PlatziCategory, Me } from "@/types/Types";
 
 export default function Dashboard() {
-    // const { data: users = [] } = useSWR("api/users", clientFetcher);
-    // const { data: products = [] } = useSWR("api/products", clientFetcher);
-    // const { data: categories = [] } = useSWR("api/categories", clientFetcher);
-    const [users, setUsers] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
+    const [users, setUsers] = useState<Me[]>([]);
+    const [products, setProducts] = useState<Item[]>([]);
+    const [categories, setCategories] = useState<PlatziCategory[]>([]);
     const { triggerToast } = useNotif();
 
     useEffect(() => {
         fetch("api/users")
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
             .then((data) => setUsers(data))
             .catch(() => triggerToast("Error fetching users data!", "error"));
+
         fetch("api/products")
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
             .then((data) => setProducts(data))
             .catch(() => triggerToast("Error fetching products data!", "error"));
+
         fetch("api/categories")
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
             .then((data) => setCategories(data))
             .catch(() => triggerToast("Error fetching categories data!", "error"));
-    }, []);
-
-    const totalUsers = () => {
-        return users.length;
-    }
-
-    const totalProducts = () => {
-        return products.length;
-    }
-
-    const totalCategories = () => {
-        return categories.length;
-    }
+    }, [triggerToast]);
 
     return (
         <div className="space-y-8 bg-background text-foreground p-6 sm:p-8 border border-gray-200">
@@ -56,17 +49,17 @@ export default function Dashboard() {
                 <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <StatCard
                         title="Active Users"
-                        value={totalUsers().toString()}
+                        value={users.length.toString()}
                         icon={<Users className="h-6 w-6 text-primary" />}
                     />
                     <StatCard
                         title="Total Products"
-                        value={totalProducts ? totalProducts().toString() : "0"}
+                        value={products.length.toString()}
                         icon={<ShoppingCart className="h-6 w-6 text-accent" />}
                     />
                     <StatCard
                         title="Total Categories"
-                        value={totalCategories ? totalCategories().toString() : "0"}
+                        value={categories.length.toString()}
                         icon={<Package className="h-6 w-6 text-primary" />}
                     />
                 </section>
