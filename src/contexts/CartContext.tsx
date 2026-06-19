@@ -1,110 +1,93 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from "react";
+import { createContext, useContext, useReducer, useEffect, useMemo, ReactNode } from "react";
 import { Item, CartItem } from "@/types/Types";
-import { useNotif } from "@/contexts/NotifContext";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "./UserContext";
+import { useNotif } from "./NotifContext";
 
-export interface CartContextType {
-    cart: CartItem[];
-    activeCart: CartItem[]; // Menggantikan getCart()
-    getCartWithId: (id: number) => CartItem | undefined;
-    addToCart: (item: Item) => void;
-    decreaseQuantity: (itemId: number) => void;
-    removeFromCart: (itemId: number) => void;
-    updateQuantity: (itemId: number, quantity: number) => void;
-    clearCart: () => void;
+type CartAction = 
+    | { type: "INITIALIZE_CART"; payload: CartItem[] }
+    | { type: "ADD_TO_CART"; payload: { item: Item; userId: number } }
+    | { type: "REMOVE_FROM_CART"; payload: { itemId: number; userId: number } }
+    | { type: "DECREASE_QUANTITY"; payload: { itemId: number; userId: number } }
+    | { type: "CLEAR_CART"; payload: { userId: number } };
+
+// Buat Reducer yang MURNI (Pure Function), tanpa efek samping (seperti Toast/API)
+function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
+    switch (action.type) {
+        case "INITIALIZE_CART":
+            return action.payload;
+
+        case "ADD_TO_CART": {
+            const { item, userId } = action.payload;
+            const existing = state.find(c => c.id === item.id && c.userId === userId && !c.status);
+            if (existing) {
+                return state.map(c => 
+                    c.id === item.id && c.userId === userId && !c.status
+                        ? { ...c, quantity: c.quantity + 1 } : c
+                );
+            }
+            return [...state, { ...item, quantity: 1, userId, status: false }];
+        }
+
+        case "REMOVE_FROM_CART":
+            return state.filter(c => !(c.id === action.payload.itemId && c.userId === action.payload.userId && !c.status));
+
+        case "DECREASE_QUANTITY":
+            return state.map(c => 
+                c.id === action.payload.itemId && c.userId === action.payload.userId && !c.status
+                    ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c
+            );
+
+        case "CLEAR_CART":
+            return state.map(c => 
+                c.userId === action.payload.userId && !c.status ? { ...c, status: true } : c
+            );
+
+        default:
+            return state;
+    }
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+interface CartContextValue {
+    cart: CartItem[];
+    activeCart: CartItem[];
+    dispatch: React.Dispatch<CartAction>;
+}
+
+const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [cart, setCart] = useState<CartItem[]>(() => {
-        if (typeof window === "undefined") return [];
-        const storedCart = localStorage.getItem("cart");
-        return storedCart ? JSON.parse(storedCart) : [];
-    });
-
-    const { triggerToast } = useNotif();
+    const [cart, dispatch] = useReducer(cartReducer, []);
     const { user } = useUser();
+
+    // tetap menggunakan useEffect untuk mengambil data dari localStorage
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedCart = localStorage.getItem("cart");
+            if (storedCart) {
+                dispatch({ type: "INITIALIZE_CART", payload: JSON.parse(storedCart) });
+            }
+        }
+    }, []);
 
     useEffect(() => {
         if (cart.length > 0) {
             localStorage.setItem("cart", JSON.stringify(cart));
-        } else if (cart.length === 0 && localStorage.getItem("cart")) {
+        } else if (cart.length === 0 && typeof window !== "undefined" && localStorage.getItem("cart")) {
             localStorage.removeItem("cart");
         }
     }, [cart]);
 
-    // Perbaikan Grading Component: Active Cart di-memoize sebagai value, bukan function.
     const activeCart = useMemo(() => {
-        return cart.filter(item => item.userId === user?.id && item.status === false);
+        return cart.filter(item => item.userId === user?.id && !item.status);
     }, [cart, user?.id]);
-
-    const getCartWithId = useCallback((id: number) => {
-        return cart.find(item => item.id === id && item.userId === user?.id && item.status === false);
-    }, [cart, user?.id]);
-
-    const addToCart = useCallback((item: Item) => {
-        if (!user) return;
-        setCart((prevCart) => {
-            const existingItem = prevCart.find(cartItem => cartItem.id === item.id && cartItem.userId === user.id && cartItem.status === false);
-            if (existingItem) {
-                return prevCart.map(cartItem =>
-                    cartItem.id === item.id && cartItem.userId === user.id && cartItem.status === false
-                        ? { ...cartItem, quantity: cartItem.quantity + 1 }
-                        : cartItem
-                );
-            }
-            return [...prevCart, { ...item, quantity: 1, userId: user.id, status: false }];
-        });
-        triggerToast(`${item.title} added to cart`, "success");
-    }, [user, triggerToast]);
-
-    const removeFromCart = useCallback((itemId: number) => {
-        if (!user) return;
-        setCart((prevCart) =>
-            prevCart.filter(item => !(item.id === itemId && item.userId === user.id && item.status === false))
-        );
-    }, [user]);
-
-    const decreaseQuantity = useCallback((itemId: number) => {
-        if (!user) return;
-        setCart((prevCart) => prevCart.map(item =>
-            item.id === itemId && item.userId === user.id && item.status === false
-                ? { ...item, quantity: Math.max(1, item.quantity - 1) }
-                : item
-        ));
-    }, [user]);
-
-    const updateQuantity = useCallback((itemId: number, quantity: number) => {
-        if (!user) return;
-        setCart((prevCart) => prevCart.map(item =>
-            item.id === itemId && item.userId === user.id && item.status === false
-                ? { ...item, quantity }
-                : item
-        ));
-    }, [user]);
-
-    const clearCart = useCallback(() => {
-        if (!user) return;
-        setCart((prevCart) => prevCart.map(item =>
-            item.userId === user.id && item.status === false
-                ? { ...item, status: true }
-                : item
-        ));
-    }, [user]);
 
     const contextValue = useMemo(() => ({
         cart,
         activeCart,
-        getCartWithId,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        decreaseQuantity
-    }), [cart, activeCart, getCartWithId, addToCart, removeFromCart, updateQuantity, clearCart, decreaseQuantity]);
+        dispatch
+    }), [cart, activeCart, dispatch]);
 
     return (
         <CartContext.Provider value={contextValue}>
@@ -115,6 +98,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
     const context = useContext(CartContext);
-    if (!context) throw new Error("useCart must be used within a CartProvider");
+    if (!context) throw new Error("useCart must be used inside a <CartProvider>");
     return context;
 }
