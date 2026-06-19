@@ -52,11 +52,10 @@ export default function ProductList() {
         getKey,
         clientFetcher,
         {
-            revalidateFirstPage: false // Opsional: Mencegah re-fetch halaman 1 saat kembali ke tab browser
+            revalidateFirstPage: false // Mencegah re-fetch halaman 1 saat kembali ke tab browser, hemat beban server
         }
     );
 
-    // 🔥 PERBAIKAN BUG: Reset Paginasi ke Halaman 1 jika Filter berubah
     useEffect(() => {
         setSize(1);
     }, [debouncedSearchTerm, selectedCategory, setSize]);
