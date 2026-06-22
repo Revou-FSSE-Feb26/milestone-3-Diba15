@@ -8,7 +8,6 @@ import Link from "next/link";
 import CartCard from "@/components/cart/CartCard";
 import { CartItem } from "@/types/Types";
 import { cartTotalPrice, totalCartItems } from "@/utils";
-import { ShoppingCart } from "lucide-react";
 
 export default function CartPage() {
     const { activeCart, dispatch } = useCart();
@@ -46,7 +45,7 @@ export default function CartPage() {
             payload: { item, userId: user.id }
         });
         triggerToast(`${item.title} added to cart`, "success");
-    }, [dispatch, user]);
+    }, [dispatch, triggerToast, user]);
 
     const checkOut = useCallback(() => {
         if (!user) return;

@@ -3,7 +3,6 @@
 import { createContext, useContext, useReducer, useEffect, useMemo, ReactNode } from "react";
 import { Item, CartItem } from "@/types/Types";
 import { useUser } from "./UserContext";
-import { useNotif } from "./NotifContext";
 
 type CartAction = 
     | { type: "INITIALIZE_CART"; payload: CartItem[] }
