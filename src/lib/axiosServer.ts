@@ -1,3 +1,19 @@
+/**
+ * Alur bagaimana axios server bekerja
+ * 1. Setiap request akan melewati Request Interceptor.
+ * 2. Request Interceptor akan mengambil accessToken dari cookie dan menyisipkannya ke header Authorization.
+ * 3. Request diteruskan ke server/API.
+ * 4. Response diterima dan melewati Response Interceptor.
+ * 5. Jika response sukses, langsung dikembalikan ke pemanggil.
+ * 6. Jika response 401 (Unauthorized) dan bukan dari endpoint auth (login/register):
+ *    a. Ambil refreshToken dari cookie.
+ *    b. Kirim request ke /auth/refresh-token untuk mendapatkan token baru.
+ *    c. Simpan accessToken dan refreshToken baru ke cookie.
+ *    d. Ulangi request asli dengan accessToken yang baru.
+ * 7. Jika refresh token juga gagal/expired:
+ *    a. Hapus semua sesi (accessToken, refreshToken, user_role) dari cookie.
+ *    b. Tolak request dengan error.
+ */
 import axios from "axios";
 import { cookies } from "next/headers";
 
