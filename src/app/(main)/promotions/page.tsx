@@ -1,6 +1,6 @@
 "use client";
 
-import { Tag, Copy, Clock, Sparkles, ShoppingBag } from "lucide-react";
+import { Tag, Copy, Clock, ShoppingBag } from "lucide-react";
 import { useNotif } from "@/contexts/NotifContext";
 
 // Data statis (Mock Data) untuk daftar promosi

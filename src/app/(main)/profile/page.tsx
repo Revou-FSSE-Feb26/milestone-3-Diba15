@@ -6,10 +6,10 @@ import { useUser } from "@/contexts/UserContext";
 import { useCart } from "@/contexts/CartContext";
 
 export default function Profile() {
-    const { user, success } = useUser();
+    const { user } = useUser();
     const { activeCart } = useCart();
 
-    if (!success || user?.id === 0) return null;
+    if (!user) return null;
 
     const cart = activeCart;
 

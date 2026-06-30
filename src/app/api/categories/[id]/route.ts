@@ -1,6 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
 import axios from "axios";
-import { cookies } from "next/headers";
 import axiosServer from "@/lib/axiosServer";
 
 export async function GET(

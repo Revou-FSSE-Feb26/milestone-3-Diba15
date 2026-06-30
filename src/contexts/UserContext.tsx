@@ -4,7 +4,6 @@ import {
   createContext,
   useContext,
   ReactNode,
-  useState,
   useEffect,
   useCallback,
   useMemo,
@@ -14,12 +13,8 @@ import useSWR from "swr";
 import axios from "axios";
 import { useNotif } from "@/contexts/NotifContext";
 
-// Default user object - dibuat sekali, bukan di setiap render
-const DEFAULT_USER: Me = { id: 0, name: "", email: "", role: "" };
-
 interface UserContextType {
   user: Me | null;
-  success: boolean;
   login: (data: LoginProps) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   register: (
@@ -32,29 +27,18 @@ const UserContext = createContext<UserContextType | null>(null);
 const clientFetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  // Hindari hydration mismatch SSR dengan menginisialisasi false di awal
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const { triggerToast } = useNotif();
-
-  // Sinkronisasi localStorage setelah komponen di-mount di klien
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedIsLoggedIn = localStorage.getItem("isLoggedIn");
-      if (storedIsLoggedIn === "true") {
-        setTimeout(() => {
-          setIsLoggedIn(true);
-        }, 0);
-      }
-    }
-  }, []);
 
   const {
     data: profile,
     mutate: mutateProfile,
     error,
-  } = useSWR<Me>(isLoggedIn ? "/api/auth/profile" : null, clientFetcher);
+  } = useSWR<Me>("/api/auth/profile", clientFetcher, {
+    shouldRetryOnError: false, // untuk mencegah ulang permintaan saat terjadi error
+    revalidateOnFocus: false, // untuk mencegah ulang permintaan saat fokus kembali ke tab
+  });
 
-  const user = profile ?? DEFAULT_USER;
+  const user = profile ?? null;
 
   useEffect(() => {
     // Jika SWR mendeteksi error dan itu adalah error 401 (Unauthorized)
@@ -62,13 +46,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (error.response?.status === 401) {
         console.log("Sesi berakhir di latar belakang, membersihkan klien...");
 
-        // 1. Hapus memori palsu dari browser
-        localStorage.removeItem("isLoggedIn");
-        setTimeout(() => {
-          setIsLoggedIn(false);
-        }, 0);
-
-        // 2. Beritahu pengguna
+        // Beritahu pengguna
         triggerToast(
           "Sesi Anda telah berakhir, silakan login kembali.",
           "warning",
@@ -110,9 +88,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const response = await axios.post("/api/auth/login", data);
 
         if (response.data.success) {
-          localStorage.setItem("isLoggedIn", "true");
-          setIsLoggedIn(true);
-
           await mutateProfile();
 
           triggerToast("Berhasil login!", "success");
@@ -143,8 +118,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try {
       await axios.post("/api/auth/logout");
-      localStorage.removeItem("isLoggedIn");
-      setIsLoggedIn(false);
 
       await mutateProfile(undefined, { revalidate: false });
 
@@ -158,12 +131,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const contextValue = useMemo(
     () => ({
       user,
-      success: isLoggedIn,
       login,
       logout,
       register,
     }),
-    [user, isLoggedIn, login, logout, register],
+    [user, login, logout, register],
   );
 
   return (
