@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
                 images: product.images && product.images.length > 0 ? [product.images[0]] : [],
             }
         };
-    } catch (error) {
+    } catch {
         return { title: "Product | Revoshop" };
     }
 }
