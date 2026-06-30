@@ -10,13 +10,13 @@ import { useUser } from "@/contexts/UserContext";
 
 export default function NavbarDashboard() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { user, logout } = useUser(); // Ambil user dari context
+  const { user, logout, isLoading } = useUser(); // Ambil user dari context
   const router = useRouter();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     setIsDropdownOpen(false);
     router.push("/login");
   };
@@ -79,7 +79,7 @@ export default function NavbarDashboard() {
             />
             {/* Nama dengan fallback "Loading..." saat SWR masih mengambil data */}
             <span className="font-medium text-sm">
-              {user?.name || "Loading..."}
+              {isLoading ? "Loading..." : user?.name}
             </span>
             <ChevronDown
               className={`h-4 w-4 transition-transform duration-300 ease-in-out ${isDropdownOpen ? 'rotate-180' : 'rotate-0'}`}

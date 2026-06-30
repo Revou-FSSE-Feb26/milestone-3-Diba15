@@ -15,8 +15,9 @@ import { useNotif } from "@/contexts/NotifContext";
 
 interface UserContextType {
   user: Me | null;
+  isLoading: boolean;
   login: (data: LoginProps) => Promise<{ success: boolean; message?: string }>;
-  logout: () => void;
+  logout: () => Promise<void>;
   register: (
     data: RegisterUser,
   ) => Promise<{ success: boolean; message?: string }>;
@@ -33,6 +34,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     data: profile,
     mutate: mutateProfile,
     error,
+    isLoading,
   } = useSWR<Me>("/api/auth/profile", clientFetcher, {
     shouldRetryOnError: false, // untuk mencegah ulang permintaan saat terjadi error
     revalidateOnFocus: false, // untuk mencegah ulang permintaan saat fokus kembali ke tab
@@ -131,11 +133,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const contextValue = useMemo(
     () => ({
       user,
+      isLoading,
       login,
       logout,
       register,
     }),
-    [user, login, logout, register],
+    [user, isLoading, login, logout, register],
   );
 
   return (
