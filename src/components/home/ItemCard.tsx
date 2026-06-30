@@ -26,7 +26,13 @@ function ItemCard({ item }: { item: Item }) {
                         width={150}
                         height={150}
                         className="object-cover w-full h-full rounded-lg group-hover:scale-105 transition-transform duration-200"
-                    />
+                        onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            if (e.currentTarget.parentElement) {
+                                e.currentTarget.parentElement.innerHTML = '<i class="fa-solid fa-image text-gray-400 text-4xl"></i>';
+                            }
+                        }}
+                        />
                 </div>
                 <div className="flex flex-col md:flex-row justify-between items-center gap-1 w-full mt-2">
                     <div className="flex flex-col gap-1 text-left w-full">
