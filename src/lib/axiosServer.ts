@@ -23,9 +23,12 @@ if (!API_URL) {
   throw new Error("NEXT_PUBLIC_API_URL is not defined.");
 }
 
+let pendingRefresh: Promise<{ accessToken: string; refreshToken: string }> | null = null;
+
 // Buat instance khusus untuk server-side
 const axiosServer = axios.create({
   baseURL: API_URL,
+  timeout: 10_000
 });
 
 // 1. Request Interceptor: Sisipkan Access Token ke setiap request
@@ -48,7 +51,8 @@ axiosServer.interceptors.response.use(
     // Skip refresh untuk auth endpoints (login, register, dll)
     const isAuthEndpoint =
       originalRequest.url?.includes("/auth/login") ||
-      originalRequest.url?.includes("/auth/register");
+      originalRequest.url?.includes("/auth/register") ||
+      originalRequest.url?.includes("/auth/refresh-token");
 
     // Jika error 401 dan belum pernah di-retry sebelumnya
     if (
@@ -57,20 +61,32 @@ axiosServer.interceptors.response.use(
       !isAuthEndpoint
     ) {
       originalRequest._retry = true;
+      const cookieStore = await cookies();
 
       try {
-        const cookieStore = await cookies();
         const refreshToken = cookieStore.get("refreshToken")?.value;
 
         if (!refreshToken) {
           throw new Error("Tidak ada refresh token");
         }
-        const refreshRes = await axios.post(`${API_URL}/auth/refresh-token`, {
-          refreshToken: refreshToken,
-        });
 
-        const newAccessToken = refreshRes.data.access_token;
-        const newRefreshToken = refreshRes.data.refresh_token || refreshToken;
+        if (!pendingRefresh) {
+          pendingRefresh = axios
+            .post(`${API_URL}/auth/refresh-token`, { refreshToken: refreshToken })
+            .then((res) => {
+              return {
+                accessToken: res.data.access_token,
+                refreshToken: res.data.refresh_token,
+              }
+            })
+            .finally(() => { pendingRefresh = null; });
+        }
+
+        const { accessToken, refreshToken: newRefreshToken } = await pendingRefresh;
+
+        if (!accessToken) {
+          throw new Error("Missing Access Token");
+        }
 
         const isProd = process.env.NODE_ENV === "production";
         const baseCookieOptions = {
@@ -81,7 +97,7 @@ axiosServer.interceptors.response.use(
         };
 
         // Perbarui cookie dengan token yang baru
-        cookieStore.set("accessToken", newAccessToken, {
+        cookieStore.set("accessToken", accessToken, {
           ...baseCookieOptions,
           maxAge: 60 * 60,
         });
@@ -91,11 +107,10 @@ axiosServer.interceptors.response.use(
         });
 
         // Ulangi request asli yang tadi gagal dengan token baru
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return axiosServer(originalRequest);
       } catch (refreshError) {
         // Jika refresh token juga gagal/expired, hapus semua sesi
-        const cookieStore = await cookies();
         cookieStore.delete("accessToken");
         cookieStore.delete("refreshToken");
         cookieStore.delete("user_role");
